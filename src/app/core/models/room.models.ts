@@ -9,14 +9,24 @@ export interface PublicPlayer {
 export type ParticipationStatus = 'ACTIVE' | 'WAITING_NEXT_ROUND';
 export type TotalRounds = 3 | 5 | 10;
 export type ChoosingDurationSeconds = 180 | 360 | 540;
+export type GameVersion = 'v1' | 'v2';
 export interface GameSettings {
   totalRounds: TotalRounds;
   choosingDurationSeconds: ChoosingDurationSeconds;
+  selectedCategories?: string[];
+}
+
+export interface GameCategory {
+  id: string;
+  label: string;
+  description: string;
+  examples: Array<{ id: string; title: string }>;
 }
 
 export interface RoomState {
   roomCode: string;
   status: string;
+  gameVersion: GameVersion;
   host: PublicPlayer;
   players: PublicPlayer[];
   settings: GameSettings;
@@ -150,12 +160,14 @@ export interface PlayerSession {
   username: string;
   isHost: boolean;
   isPlaying: boolean;
+  gameVersion: GameVersion;
 }
 
 export interface RoomEntryResponse {
   roomCode: string;
   player: PublicPlayer;
   playerToken: string;
+  gameVersion: GameVersion;
 }
 
 export type CreateRoomResponse = RoomEntryResponse;

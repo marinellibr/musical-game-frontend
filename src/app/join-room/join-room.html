@@ -27,7 +27,7 @@
       <button class="button button-primary async-button" [disabled]="loading">
         @if (loading) { <app-loader compact label="ENTRANDO..." /> } @else { ENTRAR }
       </button>
-      <a class="text-link" routerLink="/">Voltar</a>
+      <a class="text-link" [routerLink]="backRoute">Voltar</a>
     </form>
   </section>
 </main>

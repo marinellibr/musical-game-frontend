@@ -8,7 +8,7 @@
         <button type="button" class="button button-primary" (click)="showCreate = true">
           CRIAR PARTIDA
         </button>
-        <a class="button button-secondary" routerLink="/join">ENTRAR EM PARTIDA</a>
+        <a class="button button-secondary" [routerLink]="joinRoute">ENTRAR EM PARTIDA</a>
       </div>
     } @else {
       <form class="form-stack" (ngSubmit)="createRoom()">

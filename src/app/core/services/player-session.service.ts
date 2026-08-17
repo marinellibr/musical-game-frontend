@@ -11,7 +11,7 @@ export class PlayerSessionService {
       if (!raw) return null;
       const session = JSON.parse(raw) as PlayerSession;
       if (!session.roomCode || !session.playerId || !session.playerToken) return null;
-      return session;
+      return { ...session, gameVersion: session.gameVersion === 'v2' ? 'v2' : 'v1' };
     } catch {
       return null;
     }

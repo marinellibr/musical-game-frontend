@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
 import { Loader } from '../shared/loader/loader';
+import { gameRoute, gameVersionFromUrl, homeRoute } from '../core/routing/game-route';
 
 @Component({
   selector: 'app-join-room',
@@ -17,6 +18,8 @@ export class JoinRoom {
   username = '';
   loading = false;
   error = '';
+  get version() { return gameVersionFromUrl(this.router.url); }
+  get backRoute(): string[] { return homeRoute(this.version); }
 
   normalizeCode(): void {
     this.roomCode = this.roomCode.replace(/\s+/g, '').toUpperCase().slice(0, 4);
@@ -35,8 +38,8 @@ export class JoinRoom {
     this.loading = true;
     this.error = '';
     try {
-      const session = await this.rooms.join(this.roomCode, this.username.trim());
-      await this.router.navigate(['/room', session.roomCode]);
+      const session = await this.rooms.join(this.roomCode, this.username.trim(), this.version);
+      await this.router.navigate(gameRoute(session.gameVersion, session.roomCode));
     } catch (error) {
       this.error = (error as Error).message;
     } finally {

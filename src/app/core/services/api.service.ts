@@ -6,6 +6,8 @@ import {
   CreateRoomResponse,
   JoinRoomResponse,
   RoomState,
+  GameCategory,
+  GameVersion,
   SpotifyTrack,
   YouTubeMetadata,
 } from '../models/room.models';
@@ -15,16 +17,17 @@ export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-  createRoom(username: string, isPlaying: boolean): Observable<CreateRoomResponse> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.host, username, isPlaying }, playerToken: 'local-mock-token' })));
+  createRoom(username: string, isPlaying: boolean, gameVersion: GameVersion): Observable<CreateRoomResponse> {
+    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.host, username, isPlaying }, playerToken: 'local-mock-token', gameVersion })));
     return this.http.post<CreateRoomResponse>(`${this.baseUrl}/rooms`, {
       username,
       isPlaying,
+      gameVersion,
     });
   }
 
   joinRoom(roomCode: string, username: string): Observable<JoinRoomResponse> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.players[0], username }, playerToken: 'local-mock-token' })));
+    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.players[0], username }, playerToken: 'local-mock-token', gameVersion: 'v2' as const })));
     return this.http.post<JoinRoomResponse>(
       `${this.baseUrl}/rooms/${encodeURIComponent(roomCode)}/join`,
       { username },
@@ -32,7 +35,7 @@ export class ApiService {
   }
 
   getRoom(roomCode: string): Observable<RoomState> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, status: 'LOBBY', host: data.host, players: data.players, settings: data.settings, game: null })));
+    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, status: 'LOBBY', gameVersion: 'v2' as const, host: data.host, players: data.players, settings: data.settings, game: null })));
     return this.http.get<RoomState>(
       `${this.baseUrl}/rooms/${encodeURIComponent(roomCode)}`,
     );
@@ -48,12 +51,17 @@ export class ApiService {
     return this.http.get<{ albumId: string; items: SpotifyTrack[] }>(`${this.baseUrl}/spotify/albums/${encodeURIComponent(albumId)}/tracks`);
   }
 
+  getGameCategories(): Observable<{ items: GameCategory[] }> {
+    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ items: data.categories || [] })));
+    return this.http.get<{ items: GameCategory[] }>(`${this.baseUrl}/game-categories`);
+  }
+
   validateYouTube(url: string): Observable<YouTubeMetadata> {
     if (environment.mockRole) return this.mockData().pipe(map((data) => data.youtube));
     return this.http.get<YouTubeMetadata>(`${this.baseUrl}/youtube/metadata`, { params: { url } });
   }
 
-  private mockData(): Observable<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata }> {
-    return this.http.get<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata }>('/mock.json');
+  private mockData(): Observable<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; categories?: GameCategory[] }> {
+    return this.http.get<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; categories?: GameCategory[] }>('/mock.json');
   }
 }

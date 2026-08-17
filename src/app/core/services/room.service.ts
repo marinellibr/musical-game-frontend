@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { GameSettings, GameTheme, GroupVote, LeaderboardEntry, PlayerSession, PublicListeningState, PublicMedia, PublicPlayer, RoomEntryResponse, RoomState, RoundResultView, SpotifyTrack, SubmissionInput, ThemeReaction, VotingView, YouTubeMetadata } from '../models/room.models';
+import { GameSettings, GameTheme, GameVersion, GroupVote, LeaderboardEntry, PlayerSession, PublicListeningState, PublicMedia, PublicPlayer, RoomEntryResponse, RoomState, RoundResultView, SpotifyTrack, SubmissionInput, ThemeReaction, VotingView, YouTubeMetadata } from '../models/room.models';
 import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
 import { SocketConnectionState, SocketService } from './socket.service';
@@ -18,6 +18,7 @@ interface DevMockData {
   youtube: YouTubeMetadata;
   media: PublicMedia[];
   leaderboard: LeaderboardEntry[];
+  categories?: Array<{ id: string; label: string; description: string; examples: Array<{ id: string; title: string }> }>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -109,21 +110,21 @@ export class RoomService {
     this.sockets.connectionState$.subscribe((state) => this.connectionState.set(state));
   }
 
-  async create(username: string, isPlaying: boolean): Promise<PlayerSession> {
+  async create(username: string, isPlaying: boolean, gameVersion: GameVersion = 'v1'): Promise<PlayerSession> {
     this.error.set('');
     try {
-      const response = await firstValueFrom(this.api.createRoom(username, isPlaying));
+      const response = await firstValueFrom(this.api.createRoom(username, isPlaying, gameVersion));
       return this.storeResponse(response);
     } catch (error) {
       throw new Error(this.messageFor(error, 'Não foi possível criar a sala. Tente novamente.'));
     }
   }
 
-  async join(roomCode: string, username: string): Promise<PlayerSession> {
+  async join(roomCode: string, username: string, gameVersion: GameVersion = 'v1'): Promise<PlayerSession> {
     this.error.set('');
     try {
       const response = await firstValueFrom(this.api.joinRoom(roomCode, username));
-      return this.storeResponse(response);
+      return this.storeResponse({ ...response, gameVersion: response.gameVersion || gameVersion });
     } catch (error) {
       throw new Error(this.messageFor(error, 'Não foi possível entrar na sala.'));
     }
@@ -155,7 +156,7 @@ export class RoomService {
   sessionFor(roomCode: string): PlayerSession | null {
     if (this.mockEnabled) {
       const isPlayer = this.mockRole === 'player';
-      return { roomCode: (roomCode || this.mockData?.roomCode || 'MOCK').toUpperCase(), playerId: isPlayer ? 'mock-player-1' : 'mock-host', playerToken: 'local-mock-token', username: isPlayer ? 'Carol' : 'Luiz (Host)', isHost: !isPlayer, isPlaying: this.mockRole !== 'host-only' };
+      return { roomCode: (roomCode || this.mockData?.roomCode || 'MOCK').toUpperCase(), playerId: isPlayer ? 'mock-player-1' : 'mock-host', playerToken: 'local-mock-token', username: isPlayer ? 'Carol' : 'Luiz (Host)', isHost: !isPlayer, isPlaying: this.mockRole !== 'host-only', gameVersion: 'v2' };
     }
     return this.sessions.getForRoom(roomCode);
   }
@@ -190,7 +191,7 @@ export class RoomService {
       waitingNextRoundCount: 0,
       leaderboard,
     };
-    this.state.set({ roomCode: data.roomCode, status: step, host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
+    this.state.set({ roomCode: data.roomCode, status: step, gameVersion: 'v2', host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
     this.hasSubmitted.set(false);
     this.submittedMedia.set(null);
     this.listeningState.set(step === 'LISTENING' ? { theme: data.theme, index: 0, total: data.media.length, current: data.media[0], finished: false, votingEnabled: true } : null);
@@ -266,6 +267,7 @@ export class RoomService {
       username: response.player.username,
       isHost: response.player.isHost,
       isPlaying: response.player.isPlaying,
+      gameVersion: response.gameVersion || 'v1',
     };
     this.sessions.save(session);
     this.requiresRejoin.set(false);

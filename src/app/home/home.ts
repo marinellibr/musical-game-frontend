@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
 import { Loader } from '../shared/loader/loader';
+import { gameRoute, gameVersionFromUrl } from '../core/routing/game-route';
 
 @Component({
   selector: 'app-home',
@@ -19,6 +20,8 @@ export class Home {
   isPlaying = true;
   loading = false;
   error = '';
+  get version() { return gameVersionFromUrl(this.router.url); }
+  get joinRoute(): string[] { return this.version === 'v2' ? ['/v2', 'join'] : ['/join']; }
 
   async createRoom(): Promise<void> {
     const username = this.username.trim();
@@ -29,8 +32,8 @@ export class Home {
     this.loading = true;
     this.error = '';
     try {
-      const session = await this.rooms.create(username, this.isPlaying);
-      await this.router.navigate(['/room', session.roomCode]);
+      const session = await this.rooms.create(username, this.isPlaying, this.version);
+      await this.router.navigate(gameRoute(session.gameVersion, session.roomCode));
     } catch (error) {
       this.error = (error as Error).message;
     } finally {

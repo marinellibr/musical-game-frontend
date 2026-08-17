@@ -20,7 +20,8 @@ function normalizeRoomState(state: IncomingRoomState): RoomState {
   const choosingDurationSeconds = [180, 360, 540].includes(state.settings?.choosingDurationSeconds ?? 0)
     ? state.settings!.choosingDurationSeconds as GameSettings['choosingDurationSeconds']
     : DEFAULT_GAME_SETTINGS.choosingDurationSeconds;
-  return { ...state, settings: { totalRounds, choosingDurationSeconds } };
+  const selectedCategories = Array.isArray(state.settings?.selectedCategories) ? [...new Set(state.settings.selectedCategories)] : undefined;
+  return { ...state, gameVersion: state.gameVersion === 'v2' ? 'v2' : 'v1', settings: { totalRounds, choosingDurationSeconds, ...(selectedCategories ? { selectedCategories } : {}) } };
 }
 
 export interface RoomSocketError {
