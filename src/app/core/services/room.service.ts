@@ -211,7 +211,7 @@ export class RoomService {
       const finished = ['LISTENING_FINISHED', 'LISTENING_READY_ONE', 'LISTENING_READY_ALL'].includes(step);
       const readyPlayers = data.players.map((player, playerIndex) => ({ playerId: player.playerId, username: player.username, ready: step === 'LISTENING_READY_ALL' || (step === 'LISTENING_READY_ONE' && playerIndex === 0) }));
       const readyCount = readyPlayers.filter((player) => player.ready).length;
-      this.listeningState.set({ theme: data.theme, index, total: data.media.length, current: data.media[index], finished, votingEnabled: true, readyPlayers, readyCount, eligibleReadyCount: readyPlayers.length, canStartVoting: finished && readyCount > 0 });
+      this.listeningState.set({ theme: data.theme, index, total: data.media.length, current: data.media[index], items: data.media, finished, votingEnabled: true, readyPlayers, readyCount, eligibleReadyCount: readyPlayers.length, canStartVoting: readyCount > 0 });
     } else this.listeningState.set(null);
     this.votingView.set(roomStep === 'VOTING' ? { ownSubmission: this.mockRole === 'host-only' ? null : data.media[0], groups: data.media.slice(1).map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, canVote: this.mockRole !== 'host-only' })), hasVoted: false, canVote: this.mockRole !== 'host-only', votedPlayers: [], eligiblePlayersCount: host.isPlaying ? 4 : 3, votingStartedAt: Date.now(), votingEndsAt: Date.now() + 60_000 } : null);
     this.roundResult.set(roomStep === 'ROUND_RESULTS' ? this.mockRoundResult(data, leaderboard) : null);
@@ -282,7 +282,7 @@ export class RoomService {
           const lastIndex = Math.max(0, current.total - 1);
           const finishing = direction === 'next' && current.index >= lastIndex;
           const index = finishing ? current.index : direction === 'next' ? Math.min(current.index + 1, lastIndex) : Math.max(current.index - 1, 0);
-          this.listeningState.set({ ...current, index, current: data.media[index] || null, finished: finishing ? true : false, canStartVoting: finishing && (current.readyCount > 0 || current.eligibleReadyCount === 0) });
+          this.listeningState.set({ ...current, index, current: data.media[index] || null, items: data.media, finished: finishing ? true : false, canStartVoting: current.readyCount > 0 || current.eligibleReadyCount === 0 });
         } else {
           const index = direction === 'next' ? Math.min(current.index + 1, current.total) : Math.max(current.index - 1, 0);
           this.listeningState.set({ ...current, index, current: data.media[index] || null, finished: index >= current.total });
@@ -300,7 +300,7 @@ export class RoomService {
       if (!state || !session) return;
       const readyPlayers = state.readyPlayers.map((player) => player.playerId === session.playerId ? { ...player, ready } : player);
       const readyCount = readyPlayers.filter((player) => player.ready).length;
-      this.listeningState.set({ ...state, readyPlayers, readyCount, canStartVoting: state.finished && (readyCount > 0 || readyPlayers.length === 0) });
+      this.listeningState.set({ ...state, readyPlayers, readyCount, canStartVoting: readyCount > 0 || readyPlayers.length === 0 });
       return;
     }
     this.sockets.setListeningReady(ready);

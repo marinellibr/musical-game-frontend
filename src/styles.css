@@ -501,6 +501,7 @@ body:has(.dev-mock-toolbar) .page-shell { padding-bottom:96px; }
   .listening-v2-content > .listening-media-info .media-artist { margin:var(--space-1) 0 0; }
   .listening-v2-content > .media-player-shell { grid-column:1; grid-row:3 / span 5; }
   .listening-v2-content > .listening-ready-panel { grid-column:2; grid-row:4 / span 4; }
+  .listening-v2-content > .host-ready-panel { grid-column:1 / -1; grid-row:3; width:min(100%,720px); justify-self:center; }
   .listening-v2-content > .listening-follow-message { grid-column:2; }
   .listening-actions { grid-template-columns:1fr; }
   .voting-groups { grid-template-columns:repeat(2,minmax(0,1fr)); max-height:48dvh; }

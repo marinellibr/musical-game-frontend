@@ -20,11 +20,14 @@ export class ListeningV2 implements OnInit {
   readonly changingMedia = signal(false);
   readonly renderMedia = signal(true);
   readonly startingVoting = signal(false);
+  readonly localIndex = signal(0);
   readonly roomCode = signal('');
   private lastMediaKey = '';
+  private lastMockStep = '';
 
   readonly session = computed(() => this.rooms.sessionFor(this.roomCode()));
   readonly isHost = computed(() => Boolean(this.session()?.isHost));
+  readonly currentMedia = computed(() => this.rooms.listeningState()?.items[this.localIndex()] || null);
   readonly isReady = computed(() => {
     const playerId = this.session()?.playerId;
     return Boolean(playerId && this.rooms.listeningState()?.readyPlayers.some((player) => player.playerId === playerId && player.ready));
@@ -39,14 +42,18 @@ export class ListeningV2 implements OnInit {
   constructor() {
     effect(() => {
       const listening = this.rooms.listeningState();
-      const media = listening?.current;
+      const mockStep = this.rooms.activeMockStep();
+      if (this.rooms.mockEnabled && listening && mockStep !== this.lastMockStep) {
+        this.lastMockStep = mockStep;
+        this.localIndex.set(Math.min(listening.index, Math.max(0, listening.items.length - 1)));
+      }
+      const media = this.currentMedia();
       const key = media ? `${media.source}:${media.spotifyTrackId || media.youtubeVideoId}:${media.startTime}` : '';
       if (key && key !== this.lastMediaKey) {
         this.lastMediaKey = key;
         this.renderMedia.set(false);
         setTimeout(() => { this.renderMedia.set(true); this.changingMedia.set(false); });
       }
-      if (listening?.finished) { this.renderMedia.set(true); this.changingMedia.set(false); }
       const room = this.rooms.state();
       if (this.rooms.error()) { this.renderMedia.set(true); this.changingMedia.set(false); this.startingVoting.set(false); }
       if (room?.status === 'VOTING') {
@@ -62,7 +69,13 @@ export class ListeningV2 implements OnInit {
     if (session) this.rooms.connect(session); else void this.router.navigate(gameRoute('v2', this.roomCode()));
   }
 
-  move(direction: 'next' | 'previous'): void { this.changingMedia.set(true); this.renderMedia.set(false); this.rooms.moveListening(direction); }
+  nextMedia(): void {
+    const total = this.rooms.listeningState()?.items.length || 0;
+    if (this.localIndex() >= total - 1) return;
+    this.changingMedia.set(true);
+    this.renderMedia.set(false);
+    this.localIndex.update((index) => index + 1);
+  }
   toggleReady(): void { this.rooms.setListeningReady(!this.isReady()); }
   startVoting(): void { if (!this.rooms.listeningState()?.canStartVoting || this.startingVoting()) return; this.startingVoting.set(true); this.rooms.startVoting(); }
 }
