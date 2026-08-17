@@ -76,6 +76,11 @@ select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-ra
 .button-primary { background: #000; color: #fff; }
 .button-secondary { background: #fff; color: #000; }
 .button:disabled { cursor: not-allowed; opacity: 0.45; }
+.app-icon { display:inline-flex; flex:0 0 auto; align-items:center; justify-content:center; width:20px; height:20px; color:inherit; vertical-align:middle; }
+.icon-mask { width:100%; height:100%; background:currentColor; -webkit-mask:var(--icon-source) center / contain no-repeat; mask:var(--icon-source) center / contain no-repeat; }
+.icon-xs { width:14px; height:14px; }.icon-sm { width:16px; height:16px; }.icon-md { width:20px; height:20px; }.icon-lg { width:24px; height:24px; }.icon-xl { width:32px; height:32px; }
+.icon-button, .icon-link, .icon-metrics, .icon-metrics > span { display:inline-flex; align-items:center; gap:7px; }
+.icon-metrics { flex-wrap:wrap; gap:12px; }
 .button:focus-visible, .small-button:focus-visible, .track-action:focus-visible, .vote-actions button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #777; outline-offset: 2px; }
 .text-button, .text-link {
   justify-self: center;
@@ -211,7 +216,7 @@ select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-ra
 .reaction-controls > p { margin-bottom: 12px; font-weight: 700; }
 .reaction-buttons { display: flex; justify-content: center; gap: 14px; }
 .reaction-button { width: 76px; height: 64px; border: 1px solid #000; border-radius: 8px; background: #fff; font-size: 2rem; cursor: pointer; }
-.reaction-button.active { background: #000; border-width: 3px; filter: grayscale(1) invert(1); }
+.reaction-button.active { background: #000; border-width: 3px; color:#fff; filter:none; }
 .theme-host-actions { display: grid; gap: 12px; margin-top: 34px; }
 .theme-loader {
   min-height: 320px;
@@ -247,7 +252,7 @@ select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-ra
 .voting-group { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; border-bottom: 1px solid #bbb; }
 .vote-actions { display: flex; gap: 8px; }
 .vote-actions button { width: 48px; height: 48px; border: 1px solid #000; background: #fff; border-radius: 5px; font-size: 1.3rem; }
-.vote-actions button.active { background: #000; filter: grayscale(1) invert(1); }
+.vote-actions button.active { background:#000; color:#fff; filter:none; }
 .vote-progress { margin-top: 36px; padding-top: 24px; border-top: 1px solid #000; }
 .leaderboard { width:100%; max-width:620px; text-align:left; }
 .leaderboard ol { display:grid; gap:8px; margin:0; padding:0; list-style:none; }

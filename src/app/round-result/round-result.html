@@ -9,7 +9,7 @@
           @if (result.revealStage === 'RANKING') { <b class="result-position">{{ entry.position }}º</b> }
           <div><h2>{{ entry.media.title }}</h2>@if (entry.media.artist) { <p>{{ entry.media.artist }}</p> }</div>
           <p class="result-authors">@for (author of entry.authors; track author.playerId; let last = $last) { {{ author.username }}{{ last ? '' : ', ' }} }</p>
-          @if (result.revealStage !== 'AUTHORS') { <strong class="vote-balance">{{ entry.voteBalance > 0 ? '+' : '' }}{{ entry.voteBalance }}</strong><span>👍 {{ entry.likes }} · 👎 {{ entry.dislikes }}</span> }
+          @if (result.revealStage !== 'AUTHORS') { <strong class="vote-balance">{{ entry.voteBalance > 0 ? '+' : '' }}{{ entry.voteBalance }}</strong><span class="icon-metrics"><span><app-icon name="like" size="sm" /> {{ entry.likes }}</span><span><app-icon name="dislike" size="sm" /> {{ entry.dislikes }}</span></span> }
         </article>
       }
     </section>

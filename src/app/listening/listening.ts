@@ -5,10 +5,11 @@ import { SpotifyEmbedPlayer } from '../media/spotify-embed-player/spotify-embed-
 import { YoutubePlayer } from '../media/youtube-player/youtube-player';
 import { Loader } from '../shared/loader/loader';
 import { Skeleton } from '../shared/skeleton/skeleton';
+import { AppIcon } from '../shared/icon/icon';
 
 @Component({
   selector: 'app-listening',
-  imports: [SpotifyEmbedPlayer, YoutubePlayer, Loader, Skeleton],
+  imports: [AppIcon, SpotifyEmbedPlayer, YoutubePlayer, Loader, Skeleton],
   templateUrl: './listening.html',
 })
 export class Listening implements OnInit {

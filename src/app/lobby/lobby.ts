@@ -5,12 +5,13 @@ import { RoomService } from '../core/services/room.service';
 import { RoomQr } from '../shared/room-qr/room-qr';
 import { Loader } from '../shared/loader/loader';
 import { Skeleton } from '../shared/skeleton/skeleton';
+import { AppIcon } from '../shared/icon/icon';
 
 export const MIN_PLAYERS_TO_START = 2;
 
 @Component({
   selector: 'app-lobby',
-  imports: [FormsModule, Loader, RouterLink, RoomQr, Skeleton],
+  imports: [AppIcon, FormsModule, Loader, RouterLink, RoomQr, Skeleton],
   templateUrl: './lobby.html',
 })
 export class Lobby implements OnInit, OnDestroy {

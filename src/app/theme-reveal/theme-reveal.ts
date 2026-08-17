@@ -5,10 +5,11 @@ import { RoomService } from '../core/services/room.service';
 import { Loader } from '../shared/loader/loader';
 import { ThemeCard } from '../shared/theme-card/theme-card';
 import { Skeleton } from '../shared/skeleton/skeleton';
+import { AppIcon } from '../shared/icon/icon';
 
 @Component({
   selector: 'app-theme-reveal',
-  imports: [Loader, Skeleton, ThemeCard],
+  imports: [AppIcon, Loader, Skeleton, ThemeCard],
   templateUrl: './theme-reveal.html',
 })
 export class ThemeReveal implements OnInit {

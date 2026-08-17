@@ -6,8 +6,8 @@
       <app-theme-card [theme]="game.currentTheme" />
 
       <div class="reaction-counts" aria-live="polite">
-        <span>👍 {{ game.likes }}</span>
-        <span>👎 {{ game.dislikes }}</span>
+        <span><app-icon name="like" /> {{ game.likes }}</span>
+        <span><app-icon name="dislike" /> {{ game.dislikes }}</span>
       </div>
       <p class="muted reaction-progress">
         {{ game.reactedPlayers }} / {{ game.playersCount }} jogadores reagiram
@@ -22,14 +22,14 @@
             [class.active]="rooms.myThemeReaction() === 'like'"
             (click)="react('like')"
             aria-label="Curtir tema"
-          >👍</button>
+          ><app-icon name="like" size="xl" ariaLabel="Curtir tema" /></button>
           <button
             type="button"
             class="reaction-button"
             [class.active]="rooms.myThemeReaction() === 'dislike'"
             (click)="react('dislike')"
             aria-label="Não curtir tema"
-          >👎</button>
+          ><app-icon name="dislike" size="xl" ariaLabel="Não curtir tema" /></button>
         </div>
       </div>
 

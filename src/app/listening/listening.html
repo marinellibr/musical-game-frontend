@@ -12,7 +12,7 @@
             @if (media.source === 'SPOTIFY' && media.spotifyTrackId) { <app-spotify-embed-player [trackId]="media.spotifyTrackId" /> }
             @if (media.source === 'YOUTUBE' && media.youtubeVideoId) { <app-youtube-player [videoId]="media.youtubeVideoId" [startTime]="media.startTime" /> }
           }</div>
-        <a class="text-link external-media-link" [href]="media.externalUrl" target="_blank">Abrir no {{ media.source === 'SPOTIFY' ? 'Spotify' : 'YouTube' }} ↗</a>
+        <a class="text-link external-media-link icon-link" [href]="media.externalUrl" target="_blank" rel="noopener noreferrer">Abrir no {{ media.source === 'SPOTIFY' ? 'Spotify' : 'YouTube' }} <app-icon name="external-link" size="sm" /></a>
         <div class="listening-actions"><button class="button button-secondary" type="button" [disabled]="changingMedia() || listening.index === 0" (click)="move('previous')">ANTERIOR</button><button class="button button-primary" type="button" [disabled]="changingMedia()" (click)="move('next')">@if (changingMedia()) { <app-loader compact label="CARREGANDO..." /> } @else { PRÓXIMA }</button></div>
       } @else { <p class="waiting-message">Aguardando o host...</p> }
     }

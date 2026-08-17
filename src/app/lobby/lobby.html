@@ -57,8 +57,8 @@
         <h1 class="room-code">{{ room.roomCode }}</h1>
         <p class="muted">Copie o código e envie para seus amigos.</p>
         <div class="inline-actions">
-          <button type="button" class="small-button" (click)="copyCode()">COPIAR CÓDIGO</button>
-          <button type="button" class="small-button" (click)="copyLink()">COPIAR LINK</button>
+          <button type="button" class="small-button icon-button" (click)="copyCode()"><app-icon name="copy" size="sm" /> COPIAR CÓDIGO</button>
+          <button type="button" class="small-button icon-button" (click)="copyLink()"><app-icon name="copy" size="sm" /> COPIAR LINK</button>
         </div>
         @if (rooms.sessionFor(room.roomCode)?.isHost) {
           <div class="lobby-qr">
@@ -108,7 +108,7 @@
                     class="remove-player"
                     [attr.aria-label]="'Remover ' + player.username"
                     (click)="confirmRemove(player.playerId)"
-                  >×</button>
+                  ><app-icon name="close" size="lg" /></button>
                 }
               }
             </div>

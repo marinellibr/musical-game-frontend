@@ -12,8 +12,9 @@ import { RoomQr } from '../shared/room-qr/room-qr';
 import { ThemeCard } from '../shared/theme-card/theme-card';
 import { Skeleton } from '../shared/skeleton/skeleton';
 import { SpotifyTrackCard } from '../shared/spotify-track-card/spotify-track-card';
+import { AppIcon } from '../shared/icon/icon';
 
-@Component({ selector: 'app-submission', imports: [FormsModule, Leaderboard, Loader, RoomQr, Skeleton, SpotifyTrackCard, ThemeCard], templateUrl: './submission.html' })
+@Component({ selector: 'app-submission', imports: [AppIcon, FormsModule, Leaderboard, Loader, RoomQr, Skeleton, SpotifyTrackCard, ThemeCard], templateUrl: './submission.html' })
 export class Submission implements OnInit, OnDestroy {
   readonly rooms = inject(RoomService); private readonly api = inject(ApiService); private readonly drafts = inject(SubmissionDraftService); private readonly route = inject(ActivatedRoute); private readonly router = inject(Router);
   readonly now = signal(Date.now()); readonly spotifyResults = signal<SpotifyTrack[]>([]); readonly selectedTrack = signal<SpotifyTrack | null>(null); readonly youtubeMetadata = signal<YouTubeMetadata | null>(null); readonly loading = signal<'spotify' | 'youtube' | 'submit' | ''>(''); readonly formError = signal('');

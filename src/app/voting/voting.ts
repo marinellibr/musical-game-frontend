@@ -2,10 +2,11 @@ import { Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/c
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
 import { Loader } from '../shared/loader/loader';
+import { AppIcon } from '../shared/icon/icon';
 
 @Component({
   selector: 'app-voting',
-  imports: [Loader],
+  imports: [AppIcon, Loader],
   templateUrl: './voting.html',
 })
 export class Voting implements OnInit, OnDestroy {
