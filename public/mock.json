@@ -1,10 +1,28 @@
 {
   "roomCode": "MOCK",
   "settings": { "totalRounds": 5, "choosingDurationSeconds": 360, "selectedCategories": ["INSTRUMENTS", "HOT_TAKE", "ALBUM"] },
-  "categories": [
-    { "id": "INSTRUMENTS", "label": "Instrumentos", "description": "Instrumentos, performances e momentos musicais.", "examples": [{ "id": "melhor_virada_bateria", "title": "Melhor virada de bateria" }, { "id": "melhor_solo", "title": "Melhor solo de guitarra" }] },
-    { "id": "HOT_TAKE", "label": "Hot Takes", "description": "Opiniões musicais que rendem discussão.", "examples": [{ "id": "melhor_autotune", "title": "Melhor uso do autotune" }, { "id": "pior_autotune", "title": "Pior uso do autotune" }] },
-    { "id": "ALBUM", "label": "Álbuns", "description": "Faixas e momentos marcantes de álbuns.", "examples": [{ "id": "album_sem_skip", "title": "Álbum sem nenhuma faixa pulável" }] }
+  "themes": [
+    { "id": "melhor_virada_bateria", "title": "Melhor virada de bateria", "type": "MUSIC", "category": "INSTRUMENTS", "example": "Aquela virada que muda completamente a energia da música." },
+    { "id": "melhor_solo", "title": "Melhor solo de guitarra", "type": "MUSIC", "category": "INSTRUMENTS", "example": "Um solo impossível de ouvir sem aumentar o volume." },
+    { "id": "melhor_performance_vocal", "title": "Melhor performance vocal", "type": "MUSIC", "category": "VOCALS", "example": "Uma interpretação vocal impossível de esquecer." },
+    { "id": "musica_que_mais_emociona", "title": "Música que mais emociona", "type": "MUSIC", "category": "EMOTIONS", "example": "Aquela música que sempre mexe com você." },
+    { "id": "musica_para_viagem", "title": "Melhor música para uma viagem", "type": "MUSIC", "category": "SITUATIONS", "example": "A trilha perfeita para pegar a estrada." },
+    { "id": "musica_mais_caotica", "title": "Música mais caótica", "type": "MUSIC", "category": "CHAOS", "example": "Uma faixa imprevisível do começo ao fim." },
+    { "id": "melhor_cena_musical", "title": "Melhor cena musical do cinema", "type": "MUSIC", "category": "CINEMA", "example": "Quando música e imagem se tornam inseparáveis." },
+    { "id": "melhor_uso_do_autotune", "title": "Melhor uso do autotune", "type": "MUSIC", "category": "HOT_TAKE", "example": "Quando o efeito vira parte da identidade da música." },
+    { "id": "classico_da_infancia", "title": "Clássico da infância", "type": "MUSIC", "category": "NOSTALGIA", "example": "Uma música que leva você direto para outra época." },
+    { "id": "melhor_versao_ao_vivo", "title": "Melhor versão ao vivo", "type": "MUSIC", "category": "LIVE", "example": "Quando o palco supera a gravação de estúdio." },
+    { "id": "melhor_fase_de_um_artista", "title": "Melhor fase de um artista", "type": "MUSIC", "category": "ARTIST", "example": "O momento definitivo de uma carreira." },
+    { "id": "album_sem_skip", "title": "Álbum sem nenhuma faixa pulável", "type": "MUSIC", "category": "ALBUM", "example": "Um disco que você escuta inteiro sem querer pular nenhuma faixa." },
+    { "id": "classico_brasileiro", "title": "Clássico da música brasileira", "type": "MUSIC", "category": "BRAZIL", "example": "Uma faixa essencial da nossa música." },
+    { "id": "cover_melhor_que_original", "title": "Cover melhor que o original", "type": "MUSIC", "category": "COVERS", "example": "Uma releitura que ganhou vida própria." },
+    { "id": "melhor_letra", "title": "Melhor letra de música", "type": "MUSIC", "category": "LYRICS", "example": "Versos que funcionam quase como poesia." },
+    { "id": "artista_subestimado", "title": "Artista que mais gente deveria conhecer", "type": "MUSIC", "category": "DISCOVERY", "example": "Uma descoberta boa demais para guardar." },
+    { "id": "melhor_trilha_sonora", "title": "Melhor trilha sonora", "type": "MUSIC", "category": "SOUNDTRACKS", "example": "Uma trilha que define uma história." },
+    { "id": "musica_de_uma_geracao", "title": "Música que definiu uma geração", "type": "MUSIC", "category": "GENERATIONS", "example": "Uma faixa que marcou sua época." },
+    { "id": "impossivel_ficar_parado", "title": "Impossível ficar parado", "type": "MUSIC", "category": "DANCE", "example": "Uma música que leva todo mundo para a pista." },
+    { "id": "melhor_remix", "title": "Melhor remix", "type": "MUSIC", "category": "REMIXES", "example": "Uma versão que transforma completamente a original." },
+    { "id": "melhor_videoclipe", "title": "Melhor videoclipe", "type": "MUSIC", "category": "MUSIC_VIDEOS", "example": "Um clipe tão marcante quanto a própria música." }
   ],
   "host": { "playerId": "mock-host", "username": "Luiz (Host)", "isHost": true, "isPlaying": true, "connected": true, "participationStatus": "ACTIVE" },
   "players": [
@@ -12,7 +30,7 @@
     { "playerId": "mock-player-2", "username": "Bruno", "isHost": false, "isPlaying": true, "connected": true, "participationStatus": "ACTIVE" },
     { "playerId": "mock-player-3", "username": "Rafa", "isHost": false, "isPlaying": true, "connected": true, "participationStatus": "ACTIVE" }
   ],
-  "theme": { "id": "melhor_virada_bateria", "title": "Melhor virada de bateria", "type": "MUSIC", "category": "INSTRUMENTOS", "example": "Aquela virada que muda completamente a energia da música." },
+  "theme": { "id": "melhor_virada_bateria", "title": "Melhor virada de bateria", "type": "MUSIC", "category": "INSTRUMENTS", "example": "Aquela virada que muda completamente a energia da música." },
   "spotifyTracks": [
     { "trackId": "mock-track-1", "title": "In the Air Tonight", "artist": "Phil Collins", "album": "Face Value" },
     { "trackId": "mock-track-2", "title": "Tom Sawyer", "artist": "Rush", "album": "Moving Pictures" },

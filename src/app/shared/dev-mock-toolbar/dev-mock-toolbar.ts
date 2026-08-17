@@ -35,9 +35,10 @@ export class DevMockToolbar implements OnInit {
   get roleLabel(): string { return this.rooms.mockRole === 'host-only' ? 'HOST ONLY' : this.rooms.mockRole === 'player' ? 'PLAYER' : 'HOST + PLAYER'; }
 
   async ngOnInit(): Promise<void> {
-    this.rooms.setMockVersion(gameVersionFromUrl(this.router.url));
+    const initialVersion = this.router.url === '/' ? 'v2' : gameVersionFromUrl(this.router.url);
+    this.rooms.setMockVersion(initialVersion);
     await this.rooms.initializeMock();
-    if (this.router.url === '/') await this.router.navigate(gameRoute('v1', this.rooms.state()?.roomCode || 'MOCK'));
+    if (this.router.url === '/') await this.router.navigate(gameRoute(initialVersion, this.rooms.state()?.roomCode || 'MOCK'));
   }
 
   open(item: MockNavigationItem): void {

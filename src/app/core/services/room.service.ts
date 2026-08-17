@@ -18,7 +18,7 @@ interface DevMockData {
   youtube: YouTubeMetadata;
   media: PublicMedia[];
   leaderboard: LeaderboardEntry[];
-  categories?: Array<{ id: string; label: string; description: string; examples: Array<{ id: string; title: string }> }>;
+  themes?: GameTheme[];
 }
 
 @Injectable({ providedIn: 'root' })

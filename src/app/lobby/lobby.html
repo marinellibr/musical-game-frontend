@@ -52,120 +52,114 @@
         </button>
       </div>
     } @else if (rooms.state(); as room) {
-      <header class="room-header">
-        <span class="muted uppercase">Sala</span>
-        <h1 class="room-code">{{ room.roomCode }}</h1>
-        <p class="muted">Copie o código e envie para seus amigos.</p>
-        <div class="inline-actions">
-          <button type="button" class="small-button icon-button" (click)="copyCode()"><app-icon name="copy" size="sm" /> COPIAR CÓDIGO</button>
-          <button type="button" class="small-button icon-button" (click)="copyLink()"><app-icon name="copy" size="sm" /> COPIAR LINK</button>
-        </div>
-        @if (rooms.sessionFor(room.roomCode)?.isHost) {
-          <div class="lobby-qr">
-            <app-room-qr [roomCode]="room.roomCode" [gameVersion]="room.gameVersion" />
+      <div class="lobby-grid">
+        <header class="room-header lobby-room-column">
+          <span class="muted uppercase">Sala</span>
+          <h1 class="room-code">{{ room.roomCode }}</h1>
+          <p class="muted">Copie o código e envie para seus amigos.</p>
+          <div class="inline-actions">
+            <button type="button" class="small-button icon-button" (click)="copyCode()"><app-icon name="copy" size="sm" /> COPIAR CÓDIGO</button>
+            <button type="button" class="small-button icon-button" (click)="copyLink()"><app-icon name="copy" size="sm" /> COPIAR LINK</button>
           </div>
-        }
-      </header>
-
-      <div class="lobby-side-column">
-      <section class="lobby-section players-section">
-        <h2>HOST</h2>
-        <div class="player-row">
-          <div>
-            <strong>{{ room.host.username }}</strong>
-            <span class="player-detail">{{ room.host.isPlaying ? 'Jogando também' : 'Apenas host' }}</span>
-          </div>
-          @if (!room.host.connected) {
-            <span class="connection-state">Reconectando...</span>
+          @if (rooms.sessionFor(room.roomCode)?.isHost) {
+            <div class="lobby-qr">
+              <app-room-qr [roomCode]="room.roomCode" [gameVersion]="room.gameVersion" />
+            </div>
           }
-        </div>
-      </section>
+        </header>
 
-      <section class="lobby-section players-list-section">
-        <h2>JOGADORES</h2>
-        @for (player of room.players; track player.playerId) {
-          @if (player.isPlaying) {
+        <div class="lobby-middle-column">
+          <section class="lobby-section game-settings-card">
+            <h2>CONFIGURAÇÃO DA PARTIDA</h2>
+            @if (rooms.sessionFor(room.roomCode)?.isHost) {
+              <fieldset class="preset-group">
+                <legend>RODADAS</legend>
+                <div class="segmented-control">
+                  @for (option of totalRoundOptions; track option) {
+                    <button type="button" [class.selected]="room.settings.totalRounds === option" [attr.aria-pressed]="room.settings.totalRounds === option" (click)="setTotalRounds(option)">{{ option }}</button>
+                  }
+                </div>
+              </fieldset>
+              <fieldset class="preset-group">
+                <legend>TEMPO PARA ESCOLHER</legend>
+                <div class="segmented-control">
+                  @for (option of choosingDurationOptions; track option) {
+                    <button type="button" [class.selected]="room.settings.choosingDurationSeconds === option" [attr.aria-pressed]="room.settings.choosingDurationSeconds === option" (click)="setChoosingDuration(option)">{{ option / 60 }} MIN</button>
+                  }
+                </div>
+              </fieldset>
+            } @else {
+              <dl class="settings-summary">
+                <div><dt>Rodadas</dt><dd>{{ room.settings.totalRounds }}</dd></div>
+                <div><dt>Tempo para escolher</dt><dd>{{ room.settings.choosingDurationSeconds / 60 }} min</dd></div>
+              </dl>
+            }
+          </section>
+
+          <section class="lobby-section players-section">
+            <h2>HOST</h2>
             <div class="player-row">
               <div>
-                <strong>{{ player.username }}</strong>
-                @if (!player.connected) {
-                  <span class="player-detail">Reconectando...</span>
-                }
+                <strong>{{ room.host.username }}</strong>
+                <span class="player-detail">{{ room.host.isPlaying ? 'Jogando também' : 'Apenas host' }}</span>
               </div>
-              @if (rooms.sessionFor(room.roomCode)?.isHost) {
-                @if (removingPlayerId === player.playerId) {
-                  <div class="remove-confirmation">
-                    <span>Remover {{ player.username }}?</span>
-                    <button type="button" class="text-action" (click)="cancelRemove()">
-                      CANCELAR
-                    </button>
-                    <button type="button" class="text-action" [disabled]="removalPendingId() === player.playerId" (click)="removePlayer(player.playerId)">
-                      {{ removalPendingId() === player.playerId ? 'REMOVENDO...' : 'REMOVER' }}
-                    </button>
+              @if (!room.host.connected) {
+                <span class="connection-state">Reconectando...</span>
+              }
+            </div>
+          </section>
+
+          <section class="lobby-section players-list-section">
+            <h2>JOGADORES</h2>
+            @for (player of room.players; track player.playerId) {
+              @if (player.isPlaying) {
+                <div class="player-row">
+                  <div>
+                    <strong>{{ player.username }}</strong>
+                    @if (!player.connected) {
+                      <span class="player-detail">Reconectando...</span>
+                    }
                   </div>
-                } @else {
-                  <button
-                    type="button"
-                    class="remove-player"
-                    [attr.aria-label]="'Remover ' + player.username"
-                    (click)="confirmRemove(player.playerId)"
-                  ><app-icon name="close" size="lg" /></button>
-                }
+                  @if (rooms.sessionFor(room.roomCode)?.isHost) {
+                    @if (removingPlayerId === player.playerId) {
+                      <div class="remove-confirmation">
+                        <span>Remover {{ player.username }}?</span>
+                        <button type="button" class="text-action" (click)="cancelRemove()">CANCELAR</button>
+                        <button type="button" class="text-action" [disabled]="removalPendingId() === player.playerId" (click)="removePlayer(player.playerId)">
+                          {{ removalPendingId() === player.playerId ? 'REMOVENDO...' : 'REMOVER' }}
+                        </button>
+                      </div>
+                    } @else {
+                      <button type="button" class="remove-player" [attr.aria-label]="'Remover ' + player.username" (click)="confirmRemove(player.playerId)"><app-icon name="close" size="lg" /></button>
+                    }
+                  }
+                </div>
               }
-            </div>
+            } @empty {
+              <p class="muted">Aguardando jogadores...</p>
+            }
+          </section>
+        </div>
+
+        <div class="lobby-action-column">
+          @if (room.gameVersion === 'v2') {
+            <app-category-selection [settings]="room.settings" [isHost]="!!rooms.sessionFor(room.roomCode)?.isHost" />
           }
-        } @empty {
-          <p class="muted">Aguardando jogadores...</p>
-        }
-      </section>
 
-      <section class="lobby-section game-settings-card">
-        <h2>CONFIGURAÇÃO DA PARTIDA</h2>
-        @if (rooms.sessionFor(room.roomCode)?.isHost) {
-          <fieldset class="preset-group">
-            <legend>RODADAS</legend>
-            <div class="segmented-control">
-              @for (option of totalRoundOptions; track option) {
-                <button type="button" [class.selected]="room.settings.totalRounds === option" [attr.aria-pressed]="room.settings.totalRounds === option" (click)="setTotalRounds(option)">{{ option }}</button>
-              }
-            </div>
-          </fieldset>
-          <fieldset class="preset-group">
-            <legend>TEMPO PARA ESCOLHER</legend>
-            <div class="segmented-control">
-              @for (option of choosingDurationOptions; track option) {
-                <button type="button" [class.selected]="room.settings.choosingDurationSeconds === option" [attr.aria-pressed]="room.settings.choosingDurationSeconds === option" (click)="setChoosingDuration(option)">{{ option / 60 }} MIN</button>
-              }
-            </div>
-          </fieldset>
-        } @else {
-          <dl class="settings-summary">
-            <div><dt>Rodadas</dt><dd>{{ room.settings.totalRounds }}</dd></div>
-            <div><dt>Tempo para escolher</dt><dd>{{ room.settings.choosingDurationSeconds / 60 }} min</dd></div>
-          </dl>
-        }
-      </section>
+          <p class="player-count">
+            {{ playingCount() }} {{ playingCount() === 1 ? 'jogador' : 'jogadores' }}
+            @if (playingCount() < minPlayersToStart) { <span class="player-minimum">Mínimo de {{ minPlayersToStart }} jogadores para iniciar</span> }
+          </p>
 
-      @if (room.gameVersion === 'v2') {
-        <app-category-selection [settings]="room.settings" [isHost]="!!rooms.sessionFor(room.roomCode)?.isHost" />
-      }
-
-      <p class="player-count">
-        {{ playingCount() }} {{ playingCount() === 1 ? 'jogador' : 'jogadores' }}
-        @if (playingCount() < minPlayersToStart) { <span class="player-minimum">Mínimo de {{ minPlayersToStart }} jogadores para iniciar</span> }
-      </p>
-
-      @if (rooms.sessionFor(room.roomCode)?.isHost) {
-        <button
-          class="button button-primary"
-          type="button"
-          [disabled]="startingGame() || playingCount() < minPlayersToStart || (room.gameVersion === 'v2' && (room.settings.selectedCategories?.length || 0) < 2)"
-          (click)="startGame()"
-        >@if (startingGame()) { <app-loader compact label="INICIANDO..." /> } @else { INICIAR PARTIDA }</button>
-        @if (rooms.error()) { <p class="error-message">{{ rooms.error() }}</p> }
-      } @else {
-        <p class="waiting-message">Aguardando o host iniciar a partida...</p>
-      }
+          @if (rooms.sessionFor(room.roomCode)?.isHost) {
+            <button class="button button-primary" type="button" [disabled]="startingGame() || playingCount() < minPlayersToStart || (room.gameVersion === 'v2' && (room.settings.selectedCategories?.length || 0) < 2)" (click)="startGame()">
+              @if (startingGame()) { <app-loader compact label="INICIANDO..." /> } @else { INICIAR PARTIDA }
+            </button>
+            @if (rooms.error()) { <p class="error-message">{{ rooms.error() }}</p> }
+          } @else {
+            <p class="waiting-message">Aguardando o host iniciar a partida...</p>
+          }
+        </div>
       </div>
     } @else {
       <app-skeleton variant="players" [lines]="4" label="Carregando jogadores" />

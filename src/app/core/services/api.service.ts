@@ -7,6 +7,7 @@ import {
   JoinRoomResponse,
   RoomState,
   GameCategory,
+  GameTheme,
   GameVersion,
   SpotifyTrack,
   YouTubeMetadata,
@@ -52,7 +53,7 @@ export class ApiService {
   }
 
   getGameCategories(): Observable<{ items: GameCategory[] }> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ items: data.categories || [] })));
+    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ items: this.groupMockCategories(data.themes || []) })));
     return this.http.get<{ items: GameCategory[] }>(`${this.baseUrl}/game-categories`);
   }
 
@@ -61,7 +62,52 @@ export class ApiService {
     return this.http.get<YouTubeMetadata>(`${this.baseUrl}/youtube/metadata`, { params: { url } });
   }
 
-  private mockData(): Observable<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; categories?: GameCategory[] }> {
-    return this.http.get<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; categories?: GameCategory[] }>('/mock.json');
+  private mockData(): Observable<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; themes?: GameTheme[] }> {
+    return this.http.get<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; themes?: GameTheme[] }>('/mock.json');
+  }
+
+  private groupMockCategories(themes: GameTheme[]): GameCategory[] {
+    const grouped = new Map<string, GameCategory>();
+    for (const theme of themes) {
+      const rawCategoryId = theme.category?.trim();
+      if (!rawCategoryId) continue;
+      const categoryId = rawCategoryId === 'HOT_TAKES' ? 'HOT_TAKE' : rawCategoryId;
+      const presentation = this.categoryPresentation(categoryId);
+      const category = grouped.get(categoryId) || {
+        id: categoryId,
+        ...presentation,
+        examples: [],
+      };
+      if (category.examples.length < 1) category.examples.push({ id: theme.id, title: theme.title });
+      grouped.set(categoryId, category);
+    }
+    return [...grouped.values()].sort((left, right) => left.label.localeCompare(right.label, 'pt-BR'));
+  }
+
+  private categoryPresentation(category: string): Pick<GameCategory, 'label' | 'description'> {
+    const metadata: Record<string, Pick<GameCategory, 'label' | 'description'>> = {
+      INSTRUMENTS: { label: 'Instrumentos', description: 'Instrumentos, performances e momentos musicais.' },
+      VOCALS: { label: 'Vocais', description: 'Vozes, interpretações e performances vocais.' },
+      EMOTIONS: { label: 'Emoções', description: 'Músicas ligadas a sentimentos e memórias.' },
+      SITUATIONS: { label: 'Situações', description: 'Músicas perfeitas para diferentes momentos.' },
+      CHAOS: { label: 'Caos', description: 'Escolhas intensas, imprevisíveis e fora do comum.' },
+      CINEMA: { label: 'Cinema', description: 'Momentos musicais ligados ao cinema.' },
+      HOT_TAKE: { label: 'Hot Takes', description: 'Opiniões musicais que rendem discussão.' },
+      NOSTALGIA: { label: 'Nostalgia', description: 'Músicas que transportam para outras épocas.' },
+      LIVE: { label: 'Ao vivo', description: 'Performances e gravações que funcionam melhor ao vivo.' },
+      ARTIST: { label: 'Artistas', description: 'Temas dedicados a artistas e suas discografias.' },
+      ALBUM: { label: 'Álbuns', description: 'Faixas e momentos marcantes de álbuns.' },
+      BRAZIL: { label: 'Brasil', description: 'Música brasileira em diferentes estilos e épocas.' },
+      COVERS: { label: 'Covers', description: 'Releituras e novas versões de músicas conhecidas.' },
+      LYRICS: { label: 'Letras', description: 'Letras, versos e histórias contadas por músicas.' },
+      DISCOVERY: { label: 'Descobertas', description: 'Faixas e artistas que merecem ser descobertos.' },
+      SOUNDTRACKS: { label: 'Trilhas sonoras', description: 'Músicas marcantes de filmes, séries e jogos.' },
+      GENERATIONS: { label: 'Gerações', description: 'Músicas que definiram épocas e gerações.' },
+      DANCE: { label: 'Dança', description: 'Faixas feitas para movimentar a pista.' },
+      REMIXES: { label: 'Remixes', description: 'Remixes e versões que transformam a original.' },
+      MUSIC_VIDEOS: { label: 'Videoclipes', description: 'Clipes e momentos visuais inesquecíveis.' },
+    };
+    const fallbackLabel = category.toLocaleLowerCase('pt-BR').split('_').map((word) => word.charAt(0).toLocaleUpperCase('pt-BR') + word.slice(1)).join(' ');
+    return metadata[category] || { label: fallbackLabel, description: 'Temas musicais desta categoria.' };
   }
 }
