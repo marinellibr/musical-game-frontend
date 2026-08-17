@@ -553,8 +553,7 @@ body:has(.dev-mock-toolbar) .page-shell { padding-bottom:96px; }
   .listening-game-content > .listening-media-info .media-artist { margin:var(--space-1) 0 0; }
   .listening-game-content > .media-player-shell { grid-column:1; grid-row:3 / span 5; }
   .listening-game-content > .player-ready-actions { grid-column:2; grid-row:4; }
-  .listening-game-content > .host-only-ready-panel { grid-column:1 / -1; grid-row:3; width:min(100%,720px); justify-self:center; }
-  .listening-game-content > .host-player-ready-panel { grid-column:2; grid-row:5; }
+  .listening-game-content > .host-only-ready-panel, .listening-game-content > .host-player-ready-panel { grid-column:2; grid-row:5; width:100%; justify-self:stretch; }
   .listening-game-content > .listening-follow-message { grid-column:2; }
   .listening-actions { grid-template-columns:1fr; }
   .voting-groups { grid-template-columns:repeat(2,minmax(0,1fr)); max-height:48dvh; }

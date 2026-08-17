@@ -186,11 +186,14 @@ export class RoomService {
   activateMockStep(step: DevMockStep): void {
     const data = this.mockData;
     if (!data) return;
+    if (step === 'LISTENING_READY_ALL') step = 'VOTING';
     this.activeMockStep.set(step);
     const listeningScenario = step.startsWith('LISTENING');
     const roomStep = listeningScenario ? 'LISTENING' : step;
     const host = { ...data.host, isPlaying: this.mockRole !== 'host-only' };
-    const leaderboard = this.mockRole === 'host-only' ? data.leaderboard.filter((entry) => entry.playerId !== host.playerId) : data.leaderboard;
+    const leaderboard = (this.mockRole === 'host-only' ? data.leaderboard.filter((entry) => entry.playerId !== host.playerId) : data.leaderboard)
+      .map((entry, index) => ({ ...entry, position: index + 1 }));
+    const playersCount = host.isPlaying ? data.players.length + 1 : data.players.length;
     const game: PublicGameState | null = roomStep === 'LOBBY' ? null : {
       round: roomStep === 'GAME_RESULTS' ? data.settings.totalRounds : 2,
       totalRounds: data.settings.totalRounds,
@@ -199,14 +202,14 @@ export class RoomService {
       likes: 3,
       dislikes: 1,
       reactedPlayers: 4,
-      playersCount: host.isPlaying ? 4 : 3,
+      playersCount,
       roundStartedAt: roomStep === 'CHOOSING' ? Date.now() : null,
       roundEndsAt: roomStep === 'CHOOSING' ? Date.now() + data.settings.choosingDurationSeconds * 1000 : null,
-      submittedCount: 2,
+      submittedCount: roomStep === 'CHOOSING' ? Math.max(0, playersCount - 1) : playersCount,
       waitingNextRoundCount: 0,
       leaderboard,
     };
-    const mockAnalysis = roomStep === 'GAME_RESULTS' ? this.mockAnalysis(data) : undefined;
+    const mockAnalysis = roomStep === 'GAME_RESULTS' ? this.mockAnalysis(data, host) : undefined;
     if (game && mockAnalysis) game.analysis = mockAnalysis;
     this.state.set({ roomCode: data.roomCode, sessionId: 'mock-session', status: roomStep, host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
     this.finishedResult.set(mockAnalysis ? { sessionId: 'mock-session', leaderboard, analysis: mockAnalysis } : null);
@@ -216,20 +219,43 @@ export class RoomService {
       const youtubeIndex = data.media.findIndex((media) => media.source === 'YOUTUBE');
       const index = step === 'LISTENING_YOUTUBE' && youtubeIndex >= 0 ? youtubeIndex : step === 'LISTENING' ? 0 : data.media.length - 1;
       const finished = ['LISTENING_FINISHED', 'LISTENING_READY_ONE', 'LISTENING_READY_ALL'].includes(step);
-      const readyPlayers = data.players.map((player, playerIndex) => ({ playerId: player.playerId, username: player.username, ready: step === 'LISTENING_READY_ALL' || (step === 'LISTENING_READY_ONE' && playerIndex === 0) }));
+      const readyPlayers = data.players.map((player, playerIndex) => ({
+        playerId: player.playerId,
+        username: player.username,
+        ready: step === 'LISTENING_READY_ONE' ? playerIndex === 0 : step === 'LISTENING' && this.mockRole === 'player' ? player.playerId !== 'mock-player-1' : playerIndex === 0,
+      }));
       const readyCount = readyPlayers.filter((player) => player.ready).length;
       this.listeningState.set({ theme: data.theme, index, total: data.media.length, current: data.media[index], items: data.media, finished, votingEnabled: true, readyPlayers, readyCount, eligibleReadyCount: readyPlayers.length, canStartVoting: readyCount > 0 });
     } else this.listeningState.set(null);
-    this.votingView.set(roomStep === 'VOTING' ? { ownSubmission: this.mockRole === 'host-only' ? null : data.media[0], groups: data.media.slice(1).map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, canVote: this.mockRole !== 'host-only' })), hasVoted: false, canVote: this.mockRole !== 'host-only', votedPlayers: [], eligiblePlayersCount: host.isPlaying ? 4 : 3, votingStartedAt: Date.now(), votingEndsAt: Date.now() + 60_000 } : null);
-    this.roundResult.set(roomStep === 'ROUND_RESULTS' ? this.mockRoundResult(data, leaderboard) : null);
+    this.votingView.set(roomStep === 'VOTING' ? this.mockVotingView(data, host) : null);
+    this.roundResult.set(roomStep === 'ROUND_RESULTS' ? this.mockRoundResult(data, host, leaderboard) : null);
     this.error.set('');
   }
 
   mockTracks(): SpotifyTrack[] { return this.mockData?.spotifyTracks || []; }
   mockYouTube(): YouTubeMetadata | null { return this.mockData?.youtube || null; }
 
-  private mockRoundResult(data: DevMockData, leaderboard: LeaderboardEntry[]): RoundResultView {
-    return { round: 2, totalRounds: data.settings.totalRounds, theme: data.theme, revealStage: 'RANKING', leaderboard, isLastRound: false, ranking: data.media.map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, authors: [{ playerId: data.players[index]?.playerId || 'mock-player', username: data.players[index]?.username || 'Jogador' }], likes: 6 - index, dislikes: index, voteBalance: 6 - index * 2, position: index + 1 })) };
+  private mockRoundResult(data: DevMockData, host: PublicPlayer, leaderboard: LeaderboardEntry[]): RoundResultView {
+    const participants = [...(host.isPlaying ? [host] : []), ...data.players];
+    return { round: 2, totalRounds: data.settings.totalRounds, theme: data.theme, revealStage: 'RANKING', leaderboard, isLastRound: false, ranking: data.media.map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, authors: [{ playerId: participants[index]?.playerId || 'mock-player', username: participants[index]?.username || 'Jogador' }], likes: 6 - index, dislikes: index, voteBalance: 6 - index * 2, position: index + 1 })) };
+  }
+
+  private mockVotingView(data: DevMockData, host: PublicPlayer): VotingView {
+    const session = this.sessionFor(data.roomCode);
+    const ownSubmission = host.isPlaying && session?.isHost ? data.media[0] : this.mockRole === 'player' ? data.media[1] : null;
+    const ownIndex = ownSubmission ? data.media.indexOf(ownSubmission) : -1;
+    const groups = data.media.filter((_, index) => index !== ownIndex).map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, canVote: true }));
+    const eligibleIds = [host.playerId, ...data.players.map((player) => player.playerId)];
+    return {
+      ownSubmission,
+      groups,
+      hasVoted: false,
+      canVote: true,
+      votedPlayers: eligibleIds.filter((id) => id !== session?.playerId),
+      eligiblePlayersCount: eligibleIds.length,
+      votingStartedAt: Date.now(),
+      votingEndsAt: Date.now() + 60_000,
+    };
   }
 
   clearSession(): void {
@@ -277,7 +303,18 @@ export class RoomService {
     this.sockets.startRound();
   }
 
-  submitChoice(input: SubmissionInput): void { this.error.set(''); if (this.mockEnabled) { this.hasSubmitted.set(true); this.submittedMedia.set({ ...input, startTime: input.startTime || 0, externalUrl: '#' }); return; } this.sockets.submitChoice(input); }
+  submitChoice(input: SubmissionInput): void {
+    this.error.set('');
+    if (this.mockEnabled) {
+      const session = this.sessionFor(this.state()?.roomCode || 'MOCK');
+      if (!session?.isPlaying) { this.error.set('O host-only não escolhe músicas.'); return; }
+      this.hasSubmitted.set(true);
+      this.submittedMedia.set({ ...input, startTime: input.startTime || 0, externalUrl: '#' });
+      this.activateMockStep('LISTENING');
+      return;
+    }
+    this.sockets.submitChoice(input);
+  }
   startListening(): void { this.error.set(''); if (this.mockEnabled) { this.activateMockStep('LISTENING'); return; } this.sockets.startListening(); }
   moveListening(direction: 'next' | 'previous'): void {
     this.error.set('');
@@ -301,13 +338,26 @@ export class RoomService {
       if (!state || !session) return;
       const readyPlayers = state.readyPlayers.map((player) => player.playerId === session.playerId ? { ...player, ready } : player);
       const readyCount = readyPlayers.filter((player) => player.ready).length;
+      if (ready && readyPlayers.length > 0 && readyCount === readyPlayers.length) { this.activateMockStep('VOTING'); return; }
       this.listeningState.set({ ...state, readyPlayers, readyCount, canStartVoting: readyCount > 0 || readyPlayers.length === 0 });
       return;
     }
     this.sockets.setListeningReady(ready);
   }
   startVoting(): void { this.error.set(''); if (this.mockEnabled) { this.activateMockStep('VOTING'); return; } this.sockets.startVoting(); }
-  submitVote(vote: GroupVote): void { this.error.set(''); if (this.mockEnabled) { const view = this.votingView(); if (view) this.votingView.set({ ...view, hasVoted: true }); return; } this.sockets.submitVote(vote); }
+  submitVote(vote: GroupVote): void {
+    this.error.set('');
+    if (this.mockEnabled) {
+      const view = this.votingView();
+      if (!view?.canVote || view.hasVoted || vote.likedGroupId === vote.dislikedGroupId) return;
+      const session = this.sessionFor(this.state()?.roomCode || 'MOCK');
+      const votedPlayers = [...new Set([...view.votedPlayers, ...(session ? [session.playerId] : [])])];
+      if (votedPlayers.length >= view.eligiblePlayersCount) this.activateMockStep('ROUND_RESULTS');
+      else this.votingView.set({ ...view, hasVoted: true, votedPlayers });
+      return;
+    }
+    this.sockets.submitVote(vote);
+  }
   advanceResult(): void { this.error.set(''); if (this.mockEnabled) { const result = this.roundResult(); if (result) this.roundResult.set({ ...result, revealStage: result.revealStage === 'AUTHORS' ? 'VOTES' : 'RANKING' }); return; } this.sockets.advanceResult(); }
   nextRound(): void { this.error.set(''); if (this.mockEnabled) { this.activateMockStep('THEME_REVEAL'); return; } this.sockets.nextRound(); }
 
@@ -319,8 +369,8 @@ export class RoomService {
     finally { this.resultLoading.set(false); }
   }
 
-  private mockAnalysis(data: DevMockData): FinalAnalysis {
-    const refs = data.players.map(({ playerId, username }) => ({ playerId, username }));
+  private mockAnalysis(data: DevMockData, host: PublicPlayer): FinalAnalysis {
+    const refs = [...(host.isPlaying ? [host] : []), ...data.players].map(({ playerId, username }) => ({ playerId, username }));
     const stats = refs.map((item, index) => ({ ...item, totalLikesReceived: 12 - index * 2, totalDislikesReceived: 2 + index, totalLikesGiven: 8, totalDislikesGiven: 4, roundsPlayed: data.settings.totalRounds, uniqueSameChoicesWithOthers: index ? 1 : 2, likedByMost: refs.slice(0, 1), dislikedByMost: [] }));
     const pair = (a: number, b: number, sameChoices: number, score: number) => ({ players: [refs[a], refs[b]] as [typeof refs[number], typeof refs[number]], roundsTogether: data.settings.totalRounds, likesBetween: 8, dislikesBetween: 2, sameChoices, score });
     return { analysisVersion: 1, generatedAt: new Date().toISOString(), players: stats, highlights: { mostLiked: [stats[0]], mostDisliked: [stats.at(-1)!], mostControversial: [stats[1]], strongestAffinity: [pair(0, 1, 2, 2.4)], strongestRivalry: [pair(1, 2, 0, .8)], mostSameChoices: [pair(0, 2, 3, .6)] } };

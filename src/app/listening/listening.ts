@@ -27,6 +27,7 @@ export class Listening implements OnInit {
 
   readonly session = computed(() => this.rooms.sessionFor(this.roomCode()));
   readonly isHost = computed(() => Boolean(this.session()?.isHost));
+  readonly canPreviewMedia = computed(() => this.isHost() || this.isListeningPlayer());
   readonly isListeningPlayer = computed(() => {
     const room = this.rooms.state();
     const session = this.session();

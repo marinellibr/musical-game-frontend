@@ -1,7 +1,7 @@
 <main class="page-shell listening-page"><section class="page-content listening-content listening-game-content">
   @if (rooms.listeningState(); as listening) {
     <p class="eyebrow">{{ listening.theme.title }}</p>
-    @if (isListeningPlayer() && currentMedia(); as media) {
+    @if (canPreviewMedia() && currentMedia(); as media) {
       <p class="round-label">ESCOLHA {{ localIndex() + 1 }} DE {{ playlist().length }}</p>
       <section class="listening-media-info" aria-live="polite"><h1>{{ media.title }}</h1><p class="media-artist">{{ media.artist || (media.source === 'SPOTIFY' ? 'Artista não informado' : 'Canal não informado') }}</p></section>
       <div class="media-player-shell">
@@ -16,7 +16,7 @@
       <a class="text-link external-media-link icon-link" [href]="media.externalUrl" target="_blank" rel="noopener noreferrer">Abrir no {{ media.source === 'SPOTIFY' ? 'Spotify' : 'YouTube' }} <app-icon name="external-link" size="sm" /></a>
     }
 
-    @if (isListeningPlayer()) {
+    @if (canPreviewMedia()) {
       <section class="listening-ready-panel player-ready-actions">
         <div class="listening-local-navigation">
           <button class="button button-secondary" type="button" [disabled]="changingMedia() || localIndex() === 0" (click)="previousMedia()">ANTERIOR</button>

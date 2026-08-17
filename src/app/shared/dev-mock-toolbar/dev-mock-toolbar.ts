@@ -31,7 +31,7 @@ export class DevMockToolbar implements OnInit {
     { step: 'LISTENING_YOUTUBE', label: 'YouTube', route: 'listening' },
     { step: 'LISTENING_FINISHED', label: 'Fim · 0', route: 'listening' },
     { step: 'LISTENING_READY_ONE', label: 'Fim · 1', route: 'listening' },
-    { step: 'LISTENING_READY_ALL', label: 'Fim · todos', route: 'listening' },
+    { step: 'LISTENING_READY_ALL', label: 'Todos → votação', route: 'listening' },
     { step: 'VOTING', label: 'Votação', route: 'voting' },
     { step: 'ROUND_RESULTS', label: 'Rodada', route: 'round-result' },
     { step: 'GAME_RESULTS', label: 'Final', route: 'game-result' },
@@ -45,7 +45,8 @@ export class DevMockToolbar implements OnInit {
 
   open(item: MockNavigationItem): void {
     this.rooms.activateMockStep(item.step);
-    void this.router.navigate(['/mock', this.roleSegment, ...(item.route ? [item.route] : [])]);
+    const route = this.rooms.activeMockStep() === 'VOTING' ? 'voting' : item.route;
+    void this.router.navigate(['/mock', this.roleSegment, ...(route ? [route] : [])]);
   }
 
   private get roleSegment(): string {
