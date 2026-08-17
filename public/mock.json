@@ -1,0 +1,28 @@
+{
+  "roomCode": "MOCK",
+  "settings": { "totalRounds": 5, "choosingDurationSeconds": 360 },
+  "host": { "playerId": "mock-host", "username": "Luiz (Host)", "isHost": true, "isPlaying": true, "connected": true, "participationStatus": "ACTIVE" },
+  "players": [
+    { "playerId": "mock-player-1", "username": "Carol", "isHost": false, "isPlaying": true, "connected": true, "participationStatus": "ACTIVE" },
+    { "playerId": "mock-player-2", "username": "Bruno", "isHost": false, "isPlaying": true, "connected": true, "participationStatus": "ACTIVE" },
+    { "playerId": "mock-player-3", "username": "Rafa", "isHost": false, "isPlaying": true, "connected": true, "participationStatus": "ACTIVE" }
+  ],
+  "theme": { "id": "melhor_virada_bateria", "title": "Melhor virada de bateria", "type": "MUSIC", "category": "INSTRUMENTOS", "example": "Aquela virada que muda completamente a energia da música." },
+  "spotifyTracks": [
+    { "trackId": "mock-track-1", "title": "In the Air Tonight", "artist": "Phil Collins", "album": "Face Value" },
+    { "trackId": "mock-track-2", "title": "Tom Sawyer", "artist": "Rush", "album": "Moving Pictures" },
+    { "trackId": "mock-track-3", "title": "Rosanna", "artist": "Toto", "album": "Toto IV" }
+  ],
+  "youtube": { "videoId": "dQw4w9WgXcQ", "startTime": 187, "title": "Momento musical de demonstração", "channel": "Musical Game", "thumbnail": null },
+  "media": [
+    { "source": "SPOTIFY", "title": "In the Air Tonight", "artist": "Phil Collins", "spotifyTrackId": "mock-track-1", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-1" },
+    { "source": "SPOTIFY", "title": "Tom Sawyer", "artist": "Rush", "spotifyTrackId": "mock-track-2", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-2" },
+    { "source": "SPOTIFY", "title": "Rosanna", "artist": "Toto", "spotifyTrackId": "mock-track-3", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-3" }
+  ],
+  "leaderboard": [
+    { "playerId": "mock-player-1", "username": "Carol", "totalLikes": 15, "totalDislikes": 3, "voteBalance": 12, "position": 1 },
+    { "playerId": "mock-host", "username": "Luiz (Host)", "totalLikes": 11, "totalDislikes": 4, "voteBalance": 7, "position": 2 },
+    { "playerId": "mock-player-2", "username": "Bruno", "totalLikes": 8, "totalDislikes": 5, "voteBalance": 3, "position": 3 },
+    { "playerId": "mock-player-3", "username": "Rafa", "totalLikes": 5, "totalDislikes": 6, "voteBalance": -1, "position": 4 }
+  ]
+}

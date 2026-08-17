@@ -78,6 +78,24 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "mock-host": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [{ "replace": "src/environments/environment.ts", "with": "src/environments/environment.mock-host.ts" }]
+            },
+            "mock-host-only": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [{ "replace": "src/environments/environment.ts", "with": "src/environments/environment.mock-host-only.ts" }]
+            },
+            "mock-player": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [{ "replace": "src/environments/environment.ts", "with": "src/environments/environment.mock-player.ts" }]
             }
           },
           "defaultConfiguration": "production"
@@ -90,6 +108,15 @@
             },
             "development": {
               "buildTarget": "musical-game-frontend:build:development"
+            },
+            "mock-host": {
+              "buildTarget": "musical-game-frontend:build:mock-host"
+            },
+            "mock-host-only": {
+              "buildTarget": "musical-game-frontend:build:mock-host-only"
+            },
+            "mock-player": {
+              "buildTarget": "musical-game-frontend:build:mock-player"
             }
           },
           "defaultConfiguration": "development"

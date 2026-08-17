@@ -4,6 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:dev:host": "ng serve --configuration mock-host",
+    "start:dev:host-only": "ng serve --configuration mock-host-only",
+    "start:dev:player": "ng serve --configuration mock-player",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

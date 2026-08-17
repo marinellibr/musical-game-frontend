@@ -1,5 +1,17 @@
 # MusicalGameFrontend
 
+## Mock local das telas
+
+Os modos abaixo carregam somente `public/mock.json`, não conectam ao backend/Socket.IO e exibem uma barra para navegar entre todas as etapas:
+
+```bash
+npm run start:dev:host
+npm run start:dev:host-only
+npm run start:dev:player
+```
+
+Essas configurações usam file replacements locais do Angular. `npm start` e o build de produção continuam usando o backend real.
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.13.
 
 ## Development server

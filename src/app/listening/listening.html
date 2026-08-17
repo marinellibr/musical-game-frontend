@@ -8,7 +8,7 @@
       <p class="round-label">ESCOLHA {{ listening.index + 1 }} DE {{ listening.total }}</p>
       <h1>{{ media.title }}</h1>@if (media.artist) { <p class="media-artist">{{ media.artist }}</p> }
       @if (rooms.sessionFor(roomCode)?.isHost) {
-          <div class="media-player-shell">@if (changingMedia()) { <app-skeleton variant="media" label="Carregando próxima escolha" /> } @else {
+          <div class="media-player-shell">@if (changingMedia()) { <app-skeleton variant="media" label="Carregando próxima escolha" /> } @else if (rooms.mockEnabled) { <div class="mock-media-player"><span class="eyebrow">PLAYER MOCK</span><strong>{{ media.title }}</strong><small>Nenhuma mídia externa é carregada neste modo.</small></div> } @else {
             @if (media.source === 'SPOTIFY' && media.spotifyTrackId) { <app-spotify-embed-player [trackId]="media.spotifyTrackId" /> }
             @if (media.source === 'YOUTUBE' && media.youtubeVideoId) { <app-youtube-player [videoId]="media.youtubeVideoId" [startTime]="media.startTime" /> }
           }</div>
