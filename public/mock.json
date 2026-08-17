@@ -42,7 +42,7 @@
   "media": [
     { "source": "SPOTIFY", "title": "In the Air Tonight", "artist": "Phil Collins", "spotifyTrackId": "mock-track-1", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-1" },
     { "source": "SPOTIFY", "title": "Tom Sawyer", "artist": "Rush", "spotifyTrackId": "mock-track-2", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-2" },
-    { "source": "YOUTUBE", "title": "Paramore: Misery Business [OFFICIAL VIDEO]", "artist": "Paramore", "youtubeVideoId": "aCyGvGEtOwc", "startTime": 23, "externalUrl": "https://www.youtube.com/watch?v=aCyGvGEtOwc&t=23s" },
+    { "source": "YOUTUBE", "title": "Paramore: Misery Business [OFFICIAL VIDEO]", "artist": "Paramore", "youtubeVideoId": "aCyGvGEtOwc", "startTime": 23, "thumbnail": "https://i.ytimg.com/vi/aCyGvGEtOwc/hqdefault.jpg", "externalUrl": "https://www.youtube.com/watch?v=aCyGvGEtOwc&t=23s" },
     { "source": "SPOTIFY", "title": "Rosanna", "artist": "Toto", "spotifyTrackId": "mock-track-3", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-3" },
     { "source": "SPOTIFY", "title": "When the Levee Breaks", "artist": "Led Zeppelin", "spotifyTrackId": "mock-track-4", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-4" },
     { "source": "SPOTIFY", "title": "The Chain", "artist": "Fleetwood Mac", "spotifyTrackId": "mock-track-5", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-5" }

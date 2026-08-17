@@ -5,12 +5,12 @@ import { Leaderboard } from '../shared/leaderboard/leaderboard';
 import { Loader } from '../shared/loader/loader';
 import { ThemeCard } from '../shared/theme-card/theme-card';
 import { Skeleton } from '../shared/skeleton/skeleton';
-import { AppIcon } from '../shared/icon/icon';
+import { ResultTrackCard } from '../shared/result-track-card/result-track-card';
 import { gameRoute, gameVersionFromUrl } from '../core/routing/game-route';
 
 @Component({
   selector: 'app-round-result',
-  imports: [AppIcon, Leaderboard, Loader, Skeleton, ThemeCard],
+  imports: [Leaderboard, Loader, ResultTrackCard, Skeleton, ThemeCard],
   templateUrl: './round-result.html',
 })
 export class RoundResult implements OnInit {

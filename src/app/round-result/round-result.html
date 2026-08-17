@@ -8,15 +8,7 @@
         <h1 class="result-stage-title">{{ result.revealStage === 'AUTHORS' ? 'Revelação das escolhas' : result.revealStage === 'VOTES' ? 'Resultados dos votos' : 'Resultado da rodada' }}</h1>
         <section class="round-ranking">
           @for (entry of result.ranking; track entry.groupId) {
-            <article class="result-entry">
-              <header class="result-card-heading">
-                @if (result.revealStage === 'RANKING') { <b class="result-position">{{ entry.position }}º</b> }
-                @if (result.revealStage !== 'AUTHORS') { <span class="result-balance"><small>SALDO</small><strong>{{ entry.voteBalance > 0 ? '+' : '' }}{{ entry.voteBalance }}</strong></span> }
-              </header>
-              <div class="result-track-copy"><h2>{{ entry.media.title }}</h2>@if (entry.media.artist) { <p>{{ entry.media.artist }}</p> }</div>
-              <div class="result-authors"><span>ESCOLHIDA POR</span><p>@for (author of entry.authors; track author.playerId; let last = $last) { <strong>{{ author.username }}</strong>{{ last ? '' : ' · ' }} }</p></div>
-              @if (result.revealStage !== 'AUTHORS') { <div class="icon-metrics result-votes"><span><app-icon name="like" size="sm" /> {{ entry.likes }}</span><span><app-icon name="dislike" size="sm" /> {{ entry.dislikes }}</span></div> }
-            </article>
+            <app-result-track-card [entry]="entry" [showPosition]="result.revealStage === 'RANKING'" [showVotes]="result.revealStage !== 'AUTHORS'" />
           }
         </section>
         @if (rooms.sessionFor(roomCode)?.isHost) {

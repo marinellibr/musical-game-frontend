@@ -1,11 +1,11 @@
 import { Component, input } from '@angular/core';
 import { LeaderboardEntry } from '../../core/models/room.models';
 import { Skeleton } from '../skeleton/skeleton';
-import { AppIcon } from '../icon/icon';
+import { VoteStats } from '../vote-stats/vote-stats';
 
 @Component({
   selector: 'app-leaderboard',
-  imports: [AppIcon, Skeleton],
+  imports: [Skeleton, VoteStats],
   template: `
     <section class="leaderboard" [class.compact]="compact()">
       <h2>{{ title() }}</h2>
@@ -19,7 +19,7 @@ import { AppIcon } from '../icon/icon';
                 <strong class="leaderboard-name">{{ entry.username }}</strong>
                 <span class="leaderboard-balance"><small>SALDO</small><b>{{ entry.voteBalance > 0 ? '+' : '' }}{{ entry.voteBalance }}</b></span>
               </div>
-              <div class="icon-metrics leaderboard-votes"><span><app-icon name="like" size="sm" /> {{ entry.totalLikes }}</span><span><app-icon name="dislike" size="sm" /> {{ entry.totalDislikes }}</span></div>
+              <div class="leaderboard-votes"><app-vote-stats [likes]="entry.totalLikes" [dislikes]="entry.totalDislikes" /></div>
             </li>
           }
         </ol>
