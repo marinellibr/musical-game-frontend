@@ -1,1 +1,17 @@
-<main class="page-shell"><section class="page-content game-result-content"><div class="game-result-panel"><p class="eyebrow">PARTIDA ENCERRADA</p><h1>Resultado final</h1>@if (rooms.state()?.game; as game) { <app-leaderboard title="PLACAR FINAL" [entries]="game.leaderboard" />@if (!rooms.sessionFor(roomCode)?.isHost) { <p class="waiting-message">Aguardando o host...</p> }<div class="final-actions">@if (rooms.sessionFor(roomCode)?.isHost) { <button class="button button-primary async-button game-restart-button" type="button" [disabled]="restarting()" (click)="restart()">@if (restarting()) { <app-loader compact label="PREPARANDO NOVA PARTIDA..." /> } @else { JOGAR NOVAMENTE }</button> }<button class="button button-secondary game-home-button" type="button" [disabled]="restarting()" (click)="goHome()">VOLTAR AO INÍCIO</button></div> } @else { <app-leaderboard title="PLACAR FINAL" [entries]="[]" [loading]="true" /><app-loader compact label="Carregando resultado final..." /> }</div></section></main>
+<main class="page-shell">
+  <section class="page-content game-result-content">
+    <div class="game-result-panel">
+      <p class="eyebrow">PARTIDA ENCERRADA</p><h1>Resultado final</h1>
+      @if (rooms.state()?.game; as game) {
+        <app-leaderboard title="PLACAR FINAL" [entries]="rooms.finishedResult()?.leaderboard || game.leaderboard" />
+        @if (rooms.state()?.gameVersion === 'v2') {
+          @if (rooms.finishedResult()?.analysis; as analysis) { <app-final-analysis [analysis]="analysis" /> }
+          @else if (rooms.resultError()) { <section class="analysis-error" role="alert"><p>{{ rooms.resultError() }}</p><button class="button button-secondary" type="button" (click)="retryResult()">TENTAR NOVAMENTE</button></section> }
+          @else { <section class="final-analysis-loading" aria-label="Carregando destaques"><app-skeleton variant="results" [lines]="3" label="Carregando destaques da partida" /></section> }
+        }
+        @if (!rooms.sessionFor(roomCode)?.isHost) { <p class="waiting-message">Aguardando o host...</p> }
+        <div class="final-actions">@if (rooms.sessionFor(roomCode)?.isHost) { <button class="button button-primary async-button game-restart-button" type="button" [disabled]="restarting()" (click)="restart()">@if (restarting()) { <app-loader compact label="PREPARANDO NOVA PARTIDA..." /> } @else { JOGAR NOVAMENTE }</button> }<button class="button button-secondary game-home-button" type="button" [disabled]="restarting()" (click)="goHome()">VOLTAR AO INÍCIO</button></div>
+      } @else { <app-leaderboard title="PLACAR FINAL" [entries]="[]" [loading]="true" /><app-loader compact label="Carregando resultado final..." /> }
+    </div>
+  </section>
+</main>

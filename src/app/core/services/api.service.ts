@@ -11,6 +11,7 @@ import {
   GameVersion,
   SpotifyTrack,
   YouTubeMetadata,
+  GameFinishedView,
 } from '../models/room.models';
 
 @Injectable({ providedIn: 'root' })
@@ -36,10 +37,14 @@ export class ApiService {
   }
 
   getRoom(roomCode: string): Observable<RoomState> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, status: 'LOBBY', gameVersion: 'v2' as const, host: data.host, players: data.players, settings: data.settings, game: null })));
+    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, sessionId: 'mock-session-v2', status: 'LOBBY', gameVersion: 'v2' as const, host: data.host, players: data.players, settings: data.settings, game: null })));
     return this.http.get<RoomState>(
       `${this.baseUrl}/rooms/${encodeURIComponent(roomCode)}`,
     );
+  }
+
+  getSessionResult(sessionId: string): Observable<GameFinishedView> {
+    return this.http.get<GameFinishedView>(`${this.baseUrl}/rooms/sessions/${encodeURIComponent(sessionId)}/result`);
   }
 
   searchSpotify(query: string): Observable<{ query: string; items: SpotifyTrack[] }> {

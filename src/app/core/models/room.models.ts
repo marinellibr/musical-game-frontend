@@ -25,6 +25,7 @@ export interface GameCategory {
 
 export interface RoomState {
   roomCode: string;
+  sessionId: string | null;
   status: string;
   gameVersion: GameVersion;
   host: PublicPlayer;
@@ -60,9 +61,36 @@ export interface PublicGameState {
   submittedCount: number;
   waitingNextRoundCount: number;
   leaderboard: LeaderboardEntry[];
+  analysis?: FinalAnalysis;
 }
 
 export interface LeaderboardEntry { playerId: string; username: string; totalLikes: number; totalDislikes: number; voteBalance: number; position: number; }
+
+export interface AnalysisPlayer { playerId: string; username: string; }
+export interface FinalAnalysisPlayer extends AnalysisPlayer {
+  totalLikesReceived: number; totalDislikesReceived: number; totalLikesGiven: number; totalDislikesGiven: number;
+  roundsPlayed: number; uniqueSameChoicesWithOthers: number; likedByMost: AnalysisPlayer[]; dislikedByMost: AnalysisPlayer[];
+}
+export interface AnalysisPairHighlight {
+  players: [AnalysisPlayer, AnalysisPlayer]; roundsTogether: number; likesBetween: number;
+  dislikesBetween: number; sameChoices: number; score: number;
+}
+export interface FinalAnalysis {
+  analysisVersion: 1; generatedAt: string;
+  highlights: {
+    mostLiked: FinalAnalysisPlayer[]; mostDisliked: FinalAnalysisPlayer[]; mostControversial: FinalAnalysisPlayer[];
+    strongestAffinity: AnalysisPairHighlight[]; strongestRivalry: AnalysisPairHighlight[]; mostSameChoices: AnalysisPairHighlight[];
+  };
+  players: FinalAnalysisPlayer[];
+}
+export interface PublicFinalAnalysis {
+  analysisVersion: 1; generatedAt: string;
+  highlights: {
+    mostLiked: AnalysisPlayer[]; mostDisliked: AnalysisPlayer[]; mostControversial: AnalysisPlayer[];
+    strongestAffinity: AnalysisPairHighlight[]; strongestRivalry: AnalysisPairHighlight[]; mostSameChoices: AnalysisPairHighlight[];
+  };
+}
+export interface GameFinishedView { sessionId: string; leaderboard: LeaderboardEntry[]; analysis?: PublicFinalAnalysis; }
 
 export interface ThemeReactionState {
   themeId?: string;

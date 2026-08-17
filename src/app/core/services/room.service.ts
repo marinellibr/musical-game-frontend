@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { GameSettings, GameTheme, GameVersion, GroupVote, LeaderboardEntry, PlayerSession, PublicListeningState, PublicMedia, PublicPlayer, RoomEntryResponse, RoomState, RoundResultView, SpotifyTrack, SubmissionInput, ThemeReaction, VotingView, YouTubeMetadata } from '../models/room.models';
+import { FinalAnalysis, GameFinishedView, GameSettings, GameTheme, GameVersion, GroupVote, LeaderboardEntry, PlayerSession, PublicGameState, PublicListeningState, PublicMedia, PublicPlayer, RoomEntryResponse, RoomState, RoundResultView, SpotifyTrack, SubmissionInput, ThemeReaction, VotingView, YouTubeMetadata } from '../models/room.models';
 import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
 import { SocketConnectionState, SocketService } from './socket.service';
@@ -38,6 +38,9 @@ export class RoomService {
   readonly submittedMedia = signal<PublicMedia | null>(null);
   readonly roundResult = signal<RoundResultView | null>(null);
   readonly connectionState = signal<SocketConnectionState>('idle');
+  readonly finishedResult = signal<GameFinishedView | null>(null);
+  readonly resultLoading = signal(false);
+  readonly resultError = signal('');
   private submissionRoundKey = '';
   readonly mockRole: 'host' | 'host-only' | 'player' | null = environment.mockRole;
   readonly mockEnabled = this.mockRole !== null;
@@ -60,6 +63,7 @@ export class RoomService {
           this.listeningState.set(null);
           this.votingView.set(null);
           this.roundResult.set(null);
+          this.finishedResult.set(null);
         }
         this.state.set(state);
         this.error.set('');
@@ -116,6 +120,7 @@ export class RoomService {
     this.sockets.submissionStatus$.subscribe((status) => { this.hasSubmitted.set(status.submitted); this.submittedMedia.set(status.media); });
     this.sockets.roundResult$.subscribe((result) => this.roundResult.set(result));
     this.sockets.connectionState$.subscribe((state) => this.connectionState.set(state));
+    this.sockets.gameFinished$.subscribe((result) => { if (result) { this.finishedResult.set(result); this.resultLoading.set(false); this.resultError.set(''); } });
   }
 
   async create(username: string, isPlaying: boolean, gameVersion: GameVersion = 'v1'): Promise<PlayerSession> {
@@ -187,7 +192,7 @@ export class RoomService {
     const roomStep = listeningScenario ? 'LISTENING' : step;
     const host = { ...data.host, isPlaying: this.mockRole !== 'host-only' };
     const leaderboard = this.mockRole === 'host-only' ? data.leaderboard.filter((entry) => entry.playerId !== host.playerId) : data.leaderboard;
-    const game = roomStep === 'LOBBY' ? null : {
+    const game: PublicGameState | null = roomStep === 'LOBBY' ? null : {
       round: roomStep === 'GAME_RESULTS' ? data.settings.totalRounds : 2,
       totalRounds: data.settings.totalRounds,
       phase: (roomStep === 'THEME_REVEAL' ? 'THEME_SELECTION' : roomStep === 'GAME_RESULTS' ? 'ROUND_RESULTS' : roomStep) as 'THEME_SELECTION' | 'CHOOSING' | 'LISTENING' | 'VOTING' | 'ROUND_RESULTS',
@@ -202,7 +207,10 @@ export class RoomService {
       waitingNextRoundCount: 0,
       leaderboard,
     };
-    this.state.set({ roomCode: data.roomCode, status: roomStep, gameVersion: this.mockGameVersion(), host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
+    const mockAnalysis = roomStep === 'GAME_RESULTS' && this.mockGameVersion() === 'v2' ? this.mockAnalysis(data) : undefined;
+    if (game && mockAnalysis) game.analysis = mockAnalysis;
+    this.state.set({ roomCode: data.roomCode, sessionId: 'mock-session-v2', status: roomStep, gameVersion: this.mockGameVersion(), host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
+    this.finishedResult.set(mockAnalysis ? { sessionId: 'mock-session-v2', leaderboard, analysis: mockAnalysis } : null);
     this.hasSubmitted.set(false);
     this.submittedMedia.set(null);
     if (listeningScenario) {
@@ -235,6 +243,7 @@ export class RoomService {
     this.submissionRoundKey = '';
     this.hasSubmitted.set(false);
     this.submittedMedia.set(null);
+    this.finishedResult.set(null);
   }
 
   resetSubmissionState(): void { this.hasSubmitted.set(false); this.submittedMedia.set(null); }
@@ -309,6 +318,21 @@ export class RoomService {
   submitVote(vote: GroupVote): void { this.error.set(''); if (this.mockEnabled) { const view = this.votingView(); if (view) this.votingView.set({ ...view, hasVoted: true }); return; } this.sockets.submitVote(vote); }
   advanceResult(): void { this.error.set(''); if (this.mockEnabled) { const result = this.roundResult(); if (result) this.roundResult.set({ ...result, revealStage: result.revealStage === 'AUTHORS' ? 'VOTES' : 'RANKING' }); return; } this.sockets.advanceResult(); }
   nextRound(): void { this.error.set(''); if (this.mockEnabled) { this.activateMockStep('THEME_REVEAL'); return; } this.sockets.nextRound(); }
+
+  async loadFinishedResult(sessionId: string): Promise<void> {
+    if (this.mockEnabled || this.resultLoading()) return;
+    this.resultLoading.set(true); this.resultError.set('');
+    try { this.finishedResult.set(await firstValueFrom(this.api.getSessionResult(sessionId))); }
+    catch { this.resultError.set('Não foi possível carregar a análise da partida.'); }
+    finally { this.resultLoading.set(false); }
+  }
+
+  private mockAnalysis(data: DevMockData): FinalAnalysis {
+    const refs = data.players.map(({ playerId, username }) => ({ playerId, username }));
+    const stats = refs.map((item, index) => ({ ...item, totalLikesReceived: 12 - index * 2, totalDislikesReceived: 2 + index, totalLikesGiven: 8, totalDislikesGiven: 4, roundsPlayed: data.settings.totalRounds, uniqueSameChoicesWithOthers: index ? 1 : 2, likedByMost: refs.slice(0, 1), dislikedByMost: [] }));
+    const pair = (a: number, b: number, sameChoices: number, score: number) => ({ players: [refs[a], refs[b]] as [typeof refs[number], typeof refs[number]], roundsTogether: data.settings.totalRounds, likesBetween: 8, dislikesBetween: 2, sameChoices, score });
+    return { analysisVersion: 1, generatedAt: new Date().toISOString(), players: stats, highlights: { mostLiked: [stats[0]], mostDisliked: [stats.at(-1)!], mostControversial: [stats[1]], strongestAffinity: [pair(0, 1, 2, 2.4)], strongestRivalry: [pair(1, 2, 0, .8)], mostSameChoices: [pair(0, 2, 3, .6)] } };
+  }
 
   private storeResponse(response: RoomEntryResponse): PlayerSession {
     const session: PlayerSession = {

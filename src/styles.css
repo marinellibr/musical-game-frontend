@@ -414,9 +414,29 @@ app-result-track-card { display:block; min-width:0; align-self:start; }
 .game-result-panel { display:grid; width:100%; min-width:0; justify-items:stretch; gap:var(--bento-gap); text-align:center; }
 .game-result-panel > .eyebrow, .game-result-panel > h1, .game-result-panel > .waiting-message { margin:0; }
 .game-result-panel > app-leaderboard { display:block; width:100%; min-width:0; padding:var(--bento-padding); border:1px solid var(--border-neutral); border-radius:var(--card-radius); text-align:left; }
+.final-analysis { display:grid; gap:var(--space-3); text-align:left; }
+.final-analysis > h2 { margin:0; font-size:.8rem; letter-spacing:.14em; }
+.analysis-highlight-list { display:grid; grid-template-columns:minmax(0,1fr); gap:var(--bento-gap); }
+.analysis-highlight-card { display:grid; align-content:start; gap:var(--space-2); min-width:0; padding:var(--bento-padding); border:1px solid var(--border-neutral); border-radius:var(--card-radius); text-align:left; }
+.analysis-highlight-card span { color:#666; font-size:.7rem; font-weight:800; letter-spacing:.12em; }
+.analysis-highlight-card strong { font-size:clamp(1.1rem,3vw,1.35rem); overflow-wrap:anywhere; }
+.analysis-highlight-card p, .analysis-highlight-card small, .analysis-error p { margin:0; }
+.analysis-highlight-card p { color:#444; line-height:1.4; }
+.analysis-highlight-card small { color:#666; font-weight:700; }
+.analysis-error { display:grid; justify-items:center; gap:var(--space-3); padding:var(--bento-padding); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
+.final-analysis-loading { min-height:180px; padding:var(--bento-padding); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
 @media (min-width: 800px) {
   .theme-page .page-content { width: min(100%, 1000px); }
   .theme-host-actions { width: min(100%, 480px); margin-inline: auto; }
+  .analysis-highlight-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (min-width:900px) {
+  .game-result-content { width:min(100%,1100px); }
+  .game-result-panel { grid-template-columns:minmax(280px,.8fr) minmax(0,1.4fr); align-items:start; }
+  .game-result-panel > .eyebrow, .game-result-panel > h1 { grid-column:1 / -1; }
+  .game-result-panel > app-leaderboard { grid-column:1; }
+  .game-result-panel > app-final-analysis, .game-result-panel > .final-analysis-loading, .game-result-panel > .analysis-error { grid-column:2; grid-row:3; }
+  .game-result-panel > .waiting-message, .game-result-panel > .final-actions { grid-column:1 / -1; }
 }
 @media (max-width: 420px) {
   .page-shell { place-items: start center; padding-top: 24px; }

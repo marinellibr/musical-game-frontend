@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
-import { GameSettings, GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomState, RoundResultView, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
+import { GameFinishedView, GameSettings, GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomState, RoundResultView, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
 
 const DEFAULT_GAME_SETTINGS: GameSettings = {
   totalRounds: 10,
@@ -43,6 +43,7 @@ export class SocketService {
   private readonly submissionStatusSubject = new BehaviorSubject<{ submitted: boolean; media: PublicMedia | null }>({ submitted: false, media: null });
   private readonly roundResultSubject = new BehaviorSubject<RoundResultView | null>(null);
   private readonly connectionStateSubject = new BehaviorSubject<SocketConnectionState>('idle');
+  private readonly gameFinishedSubject = new BehaviorSubject<GameFinishedView | null>(null);
 
   readonly roomState$ = this.roomStateSubject.asObservable();
   readonly error$ = this.errorSubject.asObservable();
@@ -53,6 +54,7 @@ export class SocketService {
   readonly submissionStatus$ = this.submissionStatusSubject.asObservable();
   readonly roundResult$ = this.roundResultSubject.asObservable();
   readonly connectionState$ = this.connectionStateSubject.asObservable();
+  readonly gameFinished$ = this.gameFinishedSubject.asObservable();
 
   connect(session: PlayerSession): void {
     const key = `${session.roomCode}:${session.playerId}`;
@@ -86,6 +88,7 @@ export class SocketService {
     this.socket.on('voting:state', (state: VotingView) => this.votingStateSubject.next(state));
     this.socket.on('submission:status', (state: { submitted: boolean; media?: PublicMedia | null }) => this.submissionStatusSubject.next({ submitted: state.submitted, media: state.media || null }));
     this.socket.on('round:result', (state: RoundResultView) => this.roundResultSubject.next(state));
+    this.socket.on('game:finished', (state: GameFinishedView) => this.gameFinishedSubject.next(state));
     this.socket.on('connect_error', () =>
       this.errorSubject.next({
         code: 'SERVER_UNAVAILABLE',
@@ -136,6 +139,7 @@ export class SocketService {
     this.votingStateSubject.next(null);
     this.submissionStatusSubject.next({ submitted: false, media: null });
     this.roundResultSubject.next(null);
+    this.gameFinishedSubject.next(null);
     this.connectionStateSubject.next('idle');
   }
 }
