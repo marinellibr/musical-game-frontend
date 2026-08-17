@@ -2,9 +2,12 @@ import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ThemeReaction } from '../core/models/room.models';
 import { RoomService } from '../core/services/room.service';
+import { Loader } from '../shared/loader/loader';
+import { ThemeCard } from '../shared/theme-card/theme-card';
 
 @Component({
   selector: 'app-theme-reveal',
+  imports: [Loader, ThemeCard],
   templateUrl: './theme-reveal.html',
 })
 export class ThemeReveal implements OnInit {

@@ -164,6 +164,29 @@ select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-ra
   font-weight: 700;
 }
 .theme-content { text-align: center; }
+.theme-card { --theme-accent:#111; border:2px solid var(--theme-accent); border-radius:8px; padding:24px; margin:20px 0 28px; text-align:left; }
+.theme-card h1 { margin:14px 0 0; }
+.theme-card p { margin:14px 0 0; color:#555; line-height:1.5; }
+.theme-category { display:inline-block; border-bottom:3px solid var(--theme-accent); color:var(--theme-accent); font-size:.7rem; font-weight:800; letter-spacing:.12em; }
+.loader-component { display:grid; justify-items:center; gap:12px; padding:22px; }
+.loader-component p { margin:0; font-weight:700; }
+.choosing-content { display:grid; gap:18px; }
+.choosing-timer { text-align:center; font-size:clamp(3rem,15vw,6rem); font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.05em; }
+.choosing-timer.expired { color:#a00000; }
+.track-results { display:grid; gap:8px; }
+.track-result { display:grid; grid-template-columns:56px 1fr auto; align-items:center; gap:12px; width:100%; padding:9px; border:1px solid #bbb; background:#fff; text-align:left; }
+.track-result img { width:56px; height:56px; object-fit:cover; }
+.track-result small { display:block; margin-top:4px; color:#666; }
+.track-result b { font-size:.65rem; }
+.choice-preview, .submitted-choice { padding:20px; border:1px solid #000; text-align:center; }
+.choice-preview img { width:min(100%,240px); aspect-ratio:16/9; object-fit:cover; }
+.host-only-choosing { display:grid; justify-items:center; gap:18px; font-size:1.25rem; font-weight:700; }
+.room-qr { display:grid; justify-items:center; gap:8px; }
+.room-qr img { width:min(70vw,300px); height:auto; }
+.room-qr strong { font-size:2rem; letter-spacing:.12em; }
+.room-qr span { color:#666; font-size:.8rem; }
+.waiting-next-content { text-align:center; }
+.waiting-timer { font-size:2.5rem; font-weight:800; font-variant-numeric:tabular-nums; }
 .round-label { margin-bottom: 34px; font-size: .8rem; font-weight: 700; letter-spacing: .14em; }
 .theme-label { color: #666; }
 .theme-title {

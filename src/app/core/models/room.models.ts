@@ -4,7 +4,9 @@ export interface PublicPlayer {
   isHost: boolean;
   isPlaying: boolean;
   connected: boolean;
+  participationStatus: ParticipationStatus;
 }
+export type ParticipationStatus = 'ACTIVE' | 'WAITING_NEXT_ROUND';
 
 export interface RoomState {
   roomCode: string;
@@ -23,6 +25,8 @@ export interface GameTheme {
   title: string;
   type: string;
   category?: string;
+  example?: string;
+  sourceReference?: { provider: string; resourceType: string; id: string };
 }
 
 export interface PublicGameState {
@@ -34,6 +38,10 @@ export interface PublicGameState {
   dislikes: number;
   reactedPlayers: number;
   playersCount: number;
+  roundStartedAt: number | null;
+  roundEndsAt: number | null;
+  submittedCount: number;
+  waitingNextRoundCount: number;
 }
 
 export interface ThemeReactionState {
@@ -83,6 +91,24 @@ export interface VotingView {
 export interface GroupVote {
   likedGroupId: string;
   dislikedGroupId: string;
+}
+
+export interface SpotifyTrack {
+  trackId: string;
+  trackUri?: string;
+  title: string;
+  artist?: string;
+  album?: string;
+  albumId?: string;
+  image?: string;
+}
+
+export interface YouTubeMetadata {
+  videoId: string;
+  startTime: number;
+  title: string;
+  channel?: string;
+  thumbnail?: string | null;
 }
 
 export interface PlayerSession {

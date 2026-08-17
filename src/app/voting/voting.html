@@ -12,5 +12,5 @@
       <button class="button button-primary" type="button" [disabled]="!likedGroupId() || !dislikedGroupId()" (click)="submit()">CONFIRMAR VOTO</button>
     }
     @if (rooms.sessionFor(roomCode)?.isHost) { <section class="vote-progress"><h2>PROGRESSO</h2><p>{{ voting.votedPlayers.length }} de {{ voting.eligiblePlayersCount }} jogadores votaram</p>@if (rooms.state()?.host?.isPlaying) { <div class="player-row"><span>{{ rooms.state()?.host?.username }}</span><strong>{{ voting.votedPlayers.includes(rooms.state()!.host.playerId) ? '✓' : '...' }}</strong></div> } @for (player of rooms.state()?.players || []; track player.playerId) { @if (player.isPlaying) { <div class="player-row"><span>{{ player.username }}</span><strong>{{ voting.votedPlayers.includes(player.playerId) ? '✓' : '...' }}</strong></div> } }</section> }
-  } @else { <div class="theme-loader"><span class="circular-loader"></span><p>Carregando votação...</p></div> }
+  } @else { <app-loader label="Carregando votação..." /> }
 </section></main>

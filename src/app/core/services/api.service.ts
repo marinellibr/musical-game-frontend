@@ -6,6 +6,8 @@ import {
   CreateRoomResponse,
   JoinRoomResponse,
   RoomState,
+  SpotifyTrack,
+  YouTubeMetadata,
 } from '../models/room.models';
 
 @Injectable({ providedIn: 'root' })
@@ -31,5 +33,17 @@ export class ApiService {
     return this.http.get<RoomState>(
       `${this.baseUrl}/rooms/${encodeURIComponent(roomCode)}`,
     );
+  }
+
+  searchSpotify(query: string): Observable<{ query: string; items: SpotifyTrack[] }> {
+    return this.http.get<{ query: string; items: SpotifyTrack[] }>(`${this.baseUrl}/spotify/search`, { params: { q: query } });
+  }
+
+  getAlbumTracks(albumId: string): Observable<{ albumId: string; items: SpotifyTrack[] }> {
+    return this.http.get<{ albumId: string; items: SpotifyTrack[] }>(`${this.baseUrl}/spotify/albums/${encodeURIComponent(albumId)}/tracks`);
+  }
+
+  validateYouTube(url: string): Observable<YouTubeMetadata> {
+    return this.http.get<YouTubeMetadata>(`${this.baseUrl}/youtube/metadata`, { params: { url } });
   }
 }

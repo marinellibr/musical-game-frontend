@@ -28,6 +28,14 @@ export class Lobby implements OnInit, OnDestroy {
     effect(() => {
       const state = this.rooms.state();
       const routeRoomCode = this.route.snapshot.paramMap.get('roomCode')?.toUpperCase();
+      const session = this.rooms.sessionFor(routeRoomCode || '');
+      const currentPlayer = state && session
+        ? [state.host, ...state.players].find((player) => player.playerId === session.playerId)
+        : null;
+      if (state && currentPlayer?.participationStatus === 'WAITING_NEXT_ROUND') {
+        void this.router.navigate(['/room', state.roomCode, 'waiting']);
+        return;
+      }
       if (state && state.roomCode === routeRoomCode && state.status !== 'LOBBY') {
         void this.router.navigate(['/room', state.roomCode, 'theme']);
       }

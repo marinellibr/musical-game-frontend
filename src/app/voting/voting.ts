@@ -1,9 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
+import { Loader } from '../shared/loader/loader';
 
 @Component({
   selector: 'app-voting',
+  imports: [Loader],
   templateUrl: './voting.html',
 })
 export class Voting implements OnInit {

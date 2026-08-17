@@ -18,5 +18,5 @@
         <div class="listening-actions"><button class="button button-secondary" type="button" [disabled]="listening.index === 0" (click)="move('previous')">ANTERIOR</button><button class="button button-primary" type="button" (click)="move('next')">PRÓXIMA</button></div>
       } @else { <p class="waiting-message">Aguardando o host...</p> }
     }
-  } @else { <div class="theme-loader"><span class="circular-loader"></span><p>Sincronizando audição...</p></div> }
+  } @else { <app-loader label="Sincronizando audição..." /> }
 </section></main>

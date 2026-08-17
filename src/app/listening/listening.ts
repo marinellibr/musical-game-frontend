@@ -3,10 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
 import { SpotifyEmbedPlayer } from '../media/spotify-embed-player/spotify-embed-player';
 import { YoutubePlayer } from '../media/youtube-player/youtube-player';
+import { Loader } from '../shared/loader/loader';
 
 @Component({
   selector: 'app-listening',
-  imports: [SpotifyEmbedPlayer, YoutubePlayer],
+  imports: [SpotifyEmbedPlayer, YoutubePlayer, Loader],
   templateUrl: './listening.html',
 })
 export class Listening implements OnInit {

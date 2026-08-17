@@ -1,16 +1,11 @@
 <main class="page-shell theme-page">
   <section class="page-content theme-content">
     @if (swappingTheme()) {
-      <div class="theme-loader" role="status" aria-live="polite">
-        <span class="circular-loader" aria-hidden="true"></span>
-        <p>Trocando tema...</p>
-      </div>
+      <app-loader label="Trocando tema..." />
     } @else if (rooms.state()?.game; as game) {
       <p class="round-label">RODADA {{ game.round }} / {{ game.totalRounds }}</p>
       <p class="eyebrow theme-label">TEMA</p>
-      <h1 class="theme-title" [attr.data-theme-id]="game.currentTheme.id">
-        {{ game.currentTheme.title }}
-      </h1>
+      <app-theme-card [theme]="game.currentTheme" />
 
       <div class="reaction-counts" aria-live="polite">
         <span>👍 {{ game.likes }}</span>
@@ -54,8 +49,7 @@
       }
     } @else {
       <div class="theme-loader" role="status" aria-live="polite">
-        <span class="circular-loader" aria-hidden="true"></span>
-        <p>Carregando tema...</p>
+        <app-loader label="Carregando tema..." />
       </div>
     }
   </section>
