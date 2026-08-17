@@ -369,7 +369,7 @@ app-room-qr { display:block; width:100%; min-width:0; }
 .results-layout > app-leaderboard { display:block; min-width:0; padding:var(--bento-padding); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
 .round-results-column { display:flex; min-width:0; flex-direction:column; align-items:stretch; justify-content:flex-start; gap:var(--space-6); padding:var(--bento-padding); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
 .result-stage-title { margin:0; font-size:clamp(1.75rem,6vw,2.25rem); line-height:1.1; letter-spacing:-.035em; }
-.round-ranking { display:grid; gap:var(--space-3); }
+.round-ranking { display:grid; grid-auto-rows:max-content; align-content:start; gap:var(--space-3); }
 .result-entry { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--space-4); min-width:0; padding:var(--space-4); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
 .result-entry h2, .result-entry p { margin:0; }
 .result-card-heading { display:flex; grid-column:1 / -1; align-items:start; justify-content:space-between; min-width:0; }
@@ -462,7 +462,8 @@ app-spotify-track-card { display:block; width:100%; max-width:100%; min-width:0;
 .media-embed .skeleton { position:absolute; inset:0; }
 .media-frame { position:absolute; inset:0; width:100%; height:100%; border:0; background:#eee; opacity:0; transition:opacity .16s ease; }
 .media-frame.loaded { opacity:1; }
-.spotify-frame { height:min(352px,42dvh); min-height:152px; border-radius:12px; }
+.media-player-shell:has(.spotify-frame) { min-height:0; }
+.spotify-frame { height:80px; min-height:80px; border-radius:12px; }
 .youtube-frame { aspect-ratio:16 / 9; max-height:42dvh; }
 .voting-content { display:flex; width:min(100%,1000px); max-height:calc(100dvh - 32px); flex-direction:column; }
 .sticky-timer { position:sticky; z-index:2; top:0; padding:4px 0 8px; background:#fff; }
@@ -664,7 +665,7 @@ body:has(.dev-mock-toolbar) .page-shell { padding-bottom:96px; }
   .page-shell { place-items:start center; padding-block:12px; }
   .theme-card.compact { min-height:70px; padding:10px 14px; }
   .choosing-timer { font-size:2.6rem; }
-  .media-player-shell { min-height:140px; }.spotify-frame { height:180px; }.youtube-frame { max-height:45dvh; }
+  .media-player-shell { min-height:140px; }.media-player-shell:has(.spotify-frame) { min-height:0; }.spotify-frame { height:80px; }.youtube-frame { max-height:45dvh; }
 }
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
