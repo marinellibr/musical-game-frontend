@@ -1,1 +1,17 @@
-<p>submission works!</p>
+<main class="page-shell"><section class="page-content">
+  <p class="eyebrow">SUA ESCOLHA</p>
+  @if (rooms.hasSubmitted()) {
+    <h1>Escolha enviada</h1><p class="waiting-message">Aguardando os outros jogadores...</p>
+  } @else {
+    <form class="form-stack" (ngSubmit)="submit()">
+      <h1>{{ rooms.state()?.game?.currentTheme?.title }}</h1>
+      <label>Origem</label><select name="source" [(ngModel)]="source"><option value="SPOTIFY">Spotify</option><option value="YOUTUBE">YouTube</option></select>
+      <label>Título</label><input name="title" [(ngModel)]="title" required />
+      <label>Artista</label><input name="artist" [(ngModel)]="artist" />
+      <label>{{ source === 'SPOTIFY' ? 'Track ID do Spotify' : 'Video ID do YouTube' }}</label><input name="mediaId" [(ngModel)]="mediaId" required />
+      @if (source === 'YOUTUBE') { <label>Início em segundos</label><input name="startTime" type="number" min="0" [(ngModel)]="startTime" /> }
+      <button class="button button-primary">ENVIAR ESCOLHA</button>
+    </form>
+  }
+  @if (rooms.sessionFor(roomCode)?.isHost) { <button class="button button-secondary submission-host-action" type="button" (click)="rooms.startListening()">ENCERRAR E OUVIR</button> }
+</section></main>

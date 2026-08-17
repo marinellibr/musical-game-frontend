@@ -15,7 +15,8 @@ export interface RoomState {
 }
 
 export type ThemeReaction = 'like' | 'dislike';
-export type GamePhase = 'THEME_SELECTION' | 'PLAYING';
+export type GamePhase = 'THEME_SELECTION' | 'CHOOSING' | 'LISTENING' | 'VOTING';
+export type MediaSource = 'SPOTIFY' | 'YOUTUBE';
 
 export interface GameTheme {
   id: string;
@@ -38,6 +39,50 @@ export interface PublicGameState {
 export interface ThemeReactionState {
   themeId?: string;
   reaction: ThemeReaction | null;
+}
+
+export interface SubmissionInput {
+  source: MediaSource;
+  title: string;
+  artist?: string;
+  spotifyTrackId?: string;
+  youtubeVideoId?: string;
+  startTime?: number;
+  thumbnail?: string;
+}
+
+export interface PublicMedia extends SubmissionInput {
+  startTime: number;
+  externalUrl: string;
+}
+
+export interface PublicListeningState {
+  theme: GameTheme;
+  index: number;
+  total: number;
+  current: PublicMedia | null;
+  finished: boolean;
+  votingEnabled: boolean;
+}
+
+export interface VotingGroup {
+  groupId: string;
+  media: PublicMedia;
+  canVote: boolean;
+}
+
+export interface VotingView {
+  ownSubmission: PublicMedia | null;
+  groups: VotingGroup[];
+  hasVoted: boolean;
+  canVote: boolean;
+  votedPlayers: string[];
+  eligiblePlayersCount: number;
+}
+
+export interface GroupVote {
+  likedGroupId: string;
+  dislikedGroupId: string;
 }
 
 export interface PlayerSession {

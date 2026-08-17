@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { PlayerSession, RoomEntryResponse, RoomState, ThemeReaction } from '../models/room.models';
+import { GroupVote, PlayerSession, PublicListeningState, RoomEntryResponse, RoomState, SubmissionInput, ThemeReaction, VotingView } from '../models/room.models';
 import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
 import { SocketService } from './socket.service';
@@ -17,6 +17,9 @@ export class RoomService {
   readonly requiresRejoin = signal(false);
   readonly wasRemoved = signal(false);
   readonly myThemeReaction = signal<ThemeReaction | null>(null);
+  readonly listeningState = signal<PublicListeningState | null>(null);
+  readonly votingView = signal<VotingView | null>(null);
+  readonly hasSubmitted = signal(false);
 
   constructor() {
     this.sockets.roomState$.subscribe((state) => {
@@ -65,6 +68,9 @@ export class RoomService {
     this.sockets.themeReaction$.subscribe((state) => {
       if (state) this.myThemeReaction.set(state.reaction);
     });
+    this.sockets.listeningState$.subscribe((state) => this.listeningState.set(state));
+    this.sockets.votingState$.subscribe((state) => this.votingView.set(state));
+    this.sockets.submissionStatus$.subscribe((submitted) => this.hasSubmitted.set(submitted));
   }
 
   async create(username: string, isPlaying: boolean): Promise<PlayerSession> {
@@ -144,6 +150,12 @@ export class RoomService {
     this.error.set('');
     this.sockets.startRound();
   }
+
+  submitChoice(input: SubmissionInput): void { this.error.set(''); this.sockets.submitChoice(input); }
+  startListening(): void { this.error.set(''); this.sockets.startListening(); }
+  moveListening(direction: 'next' | 'previous'): void { this.error.set(''); this.sockets.moveListening(direction); }
+  startVoting(): void { this.error.set(''); this.sockets.startVoting(); }
+  submitVote(vote: GroupVote): void { this.error.set(''); this.sockets.submitVote(vote); }
 
   private storeResponse(response: RoomEntryResponse): PlayerSession {
     const session: PlayerSession = {

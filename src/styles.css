@@ -46,6 +46,7 @@ input:not([type='checkbox']) {
   outline: none;
 }
 input:not([type='checkbox']):focus { box-shadow: inset 0 0 0 1px #000; }
+select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-radius: 4px; background: #fff; }
 .code-input { text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; }
 .checkbox-row {
   display: flex;
@@ -198,6 +199,23 @@ input:not([type='checkbox']):focus { box-shadow: inset 0 0 0 1px #000; }
 }
 @keyframes theme-reveal { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: none; } }
 @keyframes loader-spin { to { transform: rotate(360deg); } }
+.submission-host-action { margin-top: 28px; }
+.listening-content { text-align: center; }
+.media-artist { color: #666; font-size: 1.1rem; }
+.media-player-shell { width: min(100%, 720px); margin: 24px auto; }
+.media-frame { width: 100%; border: 0; background: #eee; }
+.spotify-frame { height: 352px; border-radius: 12px; }
+.youtube-frame { aspect-ratio: 16 / 9; }
+.external-media-link { display: inline-block; margin: 8px 0 24px; }
+.listening-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.own-submission { display: grid; gap: 5px; padding: 20px 0; border-block: 1px solid #000; margin-bottom: 28px; }
+.own-submission span, .own-submission small, .voting-group span { display: block; color: #666; }
+.voting-groups { display: grid; gap: 12px; margin: 24px 0; }
+.voting-group { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; border-bottom: 1px solid #bbb; }
+.vote-actions { display: flex; gap: 8px; }
+.vote-actions button { width: 48px; height: 48px; border: 1px solid #000; background: #fff; border-radius: 5px; font-size: 1.3rem; }
+.vote-actions button.active { background: #000; filter: grayscale(1) invert(1); }
+.vote-progress { margin-top: 36px; padding-top: 24px; border-top: 1px solid #000; }
 @media (min-width: 800px) {
   .theme-page .page-content { width: min(100%, 1000px); }
   .theme-host-actions { width: min(100%, 480px); margin-inline: auto; }

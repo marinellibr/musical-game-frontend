@@ -1,1 +1,22 @@
-<p>listening works!</p>
+<main class="page-shell listening-page"><section class="page-content listening-content">
+  @if (rooms.listeningState(); as listening) {
+    <p class="eyebrow">{{ listening.theme.title }}</p>
+    @if (listening.finished) {
+      <h1>Todas as escolhas foram ouvidas</h1>
+      @if (rooms.sessionFor(roomCode)?.isHost) { <button class="button button-primary" type="button" (click)="rooms.startVoting()">{{ listening.votingEnabled ? 'INICIAR VOTAÇÃO' : 'VER RESULTADO' }}</button> }
+    } @else if (listening.current; as media) {
+      <p class="round-label">ESCOLHA {{ listening.index + 1 }} DE {{ listening.total }}</p>
+      <h1>{{ media.title }}</h1>@if (media.artist) { <p class="media-artist">{{ media.artist }}</p> }
+      @if (rooms.sessionFor(roomCode)?.isHost) {
+        @if (!changingMedia()) {
+          <div class="media-player-shell">
+            @if (media.source === 'SPOTIFY' && media.spotifyTrackId) { <app-spotify-embed-player [trackId]="media.spotifyTrackId" /> }
+            @if (media.source === 'YOUTUBE' && media.youtubeVideoId) { <app-youtube-player [videoId]="media.youtubeVideoId" [startTime]="media.startTime" /> }
+          </div>
+        }
+        <a class="text-link external-media-link" [href]="media.externalUrl" target="_blank">Abrir no {{ media.source === 'SPOTIFY' ? 'Spotify' : 'YouTube' }} ↗</a>
+        <div class="listening-actions"><button class="button button-secondary" type="button" [disabled]="listening.index === 0" (click)="move('previous')">ANTERIOR</button><button class="button button-primary" type="button" (click)="move('next')">PRÓXIMA</button></div>
+      } @else { <p class="waiting-message">Aguardando o host...</p> }
+    }
+  } @else { <div class="theme-loader"><span class="circular-loader"></span><p>Sincronizando audição...</p></div> }
+</section></main>

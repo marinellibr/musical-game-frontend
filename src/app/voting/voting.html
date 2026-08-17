@@ -1,1 +1,16 @@
-<p>voting works!</p>
+<main class="page-shell"><section class="page-content voting-content">
+  <p class="eyebrow">VOTAÇÃO</p>
+  @if (rooms.votingView(); as voting) {
+    @if (voting.ownSubmission; as own) { <section class="own-submission"><h2>SUA ESCOLHA</h2><strong>{{ own.title }}</strong>@if (own.artist) { <span>{{ own.artist }}</span> }<small>Indisponível para voto</small></section> }
+    @if (!voting.canVote) { <h1>Aguardando os jogadores votarem...</h1> }
+    @else if (voting.hasVoted) { <h1>Voto confirmado</h1><p class="waiting-message">Aguardando os outros jogadores...</p> }
+    @else {
+      <h1>Escolha 1 like e 1 dislike</h1>
+      <div class="voting-groups">@for (group of voting.groups; track group.groupId) {
+        <article class="voting-group"><div><strong>{{ group.media.title }}</strong>@if (group.media.artist) { <span>{{ group.media.artist }}</span> }</div><div class="vote-actions"><button type="button" [class.active]="likedGroupId() === group.groupId" (click)="select(group.groupId, 'like')">👍</button><button type="button" [class.active]="dislikedGroupId() === group.groupId" (click)="select(group.groupId, 'dislike')">👎</button></div></article>
+      }</div>
+      <button class="button button-primary" type="button" [disabled]="!likedGroupId() || !dislikedGroupId()" (click)="submit()">CONFIRMAR VOTO</button>
+    }
+    @if (rooms.sessionFor(roomCode)?.isHost) { <section class="vote-progress"><h2>PROGRESSO</h2><p>{{ voting.votedPlayers.length }} de {{ voting.eligiblePlayersCount }} jogadores votaram</p>@if (rooms.state()?.host?.isPlaying) { <div class="player-row"><span>{{ rooms.state()?.host?.username }}</span><strong>{{ voting.votedPlayers.includes(rooms.state()!.host.playerId) ? '✓' : '...' }}</strong></div> } @for (player of rooms.state()?.players || []; track player.playerId) { @if (player.isPlaying) { <div class="player-row"><span>{{ player.username }}</span><strong>{{ voting.votedPlayers.includes(player.playerId) ? '✓' : '...' }}</strong></div> } }</section> }
+  } @else { <div class="theme-loader"><span class="circular-loader"></span><p>Carregando votação...</p></div> }
+</section></main>
