@@ -2,8 +2,8 @@
   @if (rooms.listeningState(); as listening) {
     <p class="eyebrow">{{ listening.theme.title }}</p>
     @if (listening.finished) {
-      <h1>Todas as escolhas foram ouvidas</h1>
-      @if (rooms.sessionFor(roomCode)?.isHost) { <button class="button button-primary async-button" type="button" [disabled]="startingVoting()" (click)="startVoting()">@if (startingVoting()) { <app-loader compact label="INICIANDO..." /> } @else { <span>{{ listening.votingEnabled ? 'INICIAR VOTAÇÃO' : 'VER RESULTADO' }}</span> }</button> }
+      <section class="listening-finished"><h1>Todas as escolhas foram ouvidas</h1>
+      @if (rooms.sessionFor(roomCode)?.isHost) { <div class="phase-action-bar"><button class="button button-primary async-button" type="button" [disabled]="startingVoting()" (click)="startVoting()">@if (startingVoting()) { <app-loader compact label="INICIANDO..." /> } @else { <span>{{ listening.votingEnabled ? 'INICIAR VOTAÇÃO' : 'VER RESULTADO' }}</span> }</button></div> } @else { <p class="waiting-message">Aguardando o host...</p> }</section>
     } @else if (listening.current; as media) {
       <p class="round-label">ESCOLHA {{ listening.index + 1 }} DE {{ listening.total }}</p>
       <h1>{{ media.title }}</h1>@if (media.artist) { <p class="media-artist">{{ media.artist }}</p> }

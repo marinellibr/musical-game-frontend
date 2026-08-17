@@ -67,6 +67,7 @@
         }
       </header>
 
+      <div class="lobby-side-column">
       <section class="lobby-section players-section">
         <h2>HOST</h2>
         <div class="player-row">
@@ -80,7 +81,7 @@
         </div>
       </section>
 
-      <section class="lobby-section">
+      <section class="lobby-section players-list-section">
         <h2>JOGADORES</h2>
         @for (player of room.players; track player.playerId) {
           @if (player.isPlaying) {
@@ -159,6 +160,7 @@
       } @else {
         <p class="waiting-message">Aguardando o host iniciar a partida...</p>
       }
+      </div>
     } @else {
       <app-skeleton variant="players" [lines]="4" label="Carregando jogadores" />
     }

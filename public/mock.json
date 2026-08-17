@@ -11,13 +11,17 @@
   "spotifyTracks": [
     { "trackId": "mock-track-1", "title": "In the Air Tonight", "artist": "Phil Collins", "album": "Face Value" },
     { "trackId": "mock-track-2", "title": "Tom Sawyer", "artist": "Rush", "album": "Moving Pictures" },
-    { "trackId": "mock-track-3", "title": "Rosanna", "artist": "Toto", "album": "Toto IV" }
+    { "trackId": "mock-track-3", "title": "Rosanna", "artist": "Toto", "album": "Toto IV" },
+    { "trackId": "mock-track-4", "title": "When the Levee Breaks", "artist": "Led Zeppelin", "album": "Led Zeppelin IV" },
+    { "trackId": "mock-track-5", "title": "The Chain", "artist": "Fleetwood Mac", "album": "Rumours" }
   ],
   "youtube": { "videoId": "dQw4w9WgXcQ", "startTime": 187, "title": "Momento musical de demonstração", "channel": "Musical Game", "thumbnail": null },
   "media": [
     { "source": "SPOTIFY", "title": "In the Air Tonight", "artist": "Phil Collins", "spotifyTrackId": "mock-track-1", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-1" },
     { "source": "SPOTIFY", "title": "Tom Sawyer", "artist": "Rush", "spotifyTrackId": "mock-track-2", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-2" },
-    { "source": "SPOTIFY", "title": "Rosanna", "artist": "Toto", "spotifyTrackId": "mock-track-3", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-3" }
+    { "source": "SPOTIFY", "title": "Rosanna", "artist": "Toto", "spotifyTrackId": "mock-track-3", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-3" },
+    { "source": "SPOTIFY", "title": "When the Levee Breaks", "artist": "Led Zeppelin", "spotifyTrackId": "mock-track-4", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-4" },
+    { "source": "SPOTIFY", "title": "The Chain", "artist": "Fleetwood Mac", "spotifyTrackId": "mock-track-5", "startTime": 0, "externalUrl": "https://open.spotify.com/track/mock-track-5" }
   ],
   "leaderboard": [
     { "playerId": "mock-player-1", "username": "Carol", "totalLikes": 15, "totalDislikes": 3, "voteBalance": 12, "position": 1 },

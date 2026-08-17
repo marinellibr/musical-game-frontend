@@ -11,7 +11,16 @@
       @if (youtubeMetadata(); as video) { <section class="choice-preview">@if (video.thumbnail) { <img [src]="video.thumbnail" [alt]="'Prévia de ' + video.title" /> }<h2>{{ video.title }}</h2><p>{{ video.channel }}</p><label for="start-time">Começar em: {{ game.currentTheme.type === 'YT_NOTIME' ? '(opcional)' : '' }}</label><input id="start-time" type="text" inputmode="numeric" autocomplete="off" placeholder="3:07" [ngModel]="startTimeText" (ngModelChange)="updateStartTime($event)" aria-describedby="start-time-help" /><small id="start-time-help" class="muted">Use minutos:segundos, por exemplo 3:07.</small></section> }
       @if (formError() && (game.currentTheme.type === 'MOMENT' || game.currentTheme.type === 'YT_NOTIME')) { <p class="error-message stable-error">{{ formError() }}</p> }<button class="button button-primary async-button" type="button" [disabled]="loading() === 'submit' || remainingSeconds() === 0 || (!selectedTrack() && !youtubeMetadata())" (click)="submit()">@if (loading() === 'submit') { <app-loader compact label="ENVIANDO..." /> } @else { CONFIRMAR ESCOLHA }</button>
     }
-  } @else { <section class="host-only-choosing"><p class="submission-progress">{{ game.submittedCount }} de {{ game.playersCount }} escolheram</p><app-leaderboard [entries]="game.leaderboard" />@if (game.waitingNextRoundCount) { <small>+ {{ game.waitingNextRoundCount }} jogador(es) entra(m) na próxima rodada</small> }<app-room-qr [roomCode]="roomCode" /></section> }
-  @if (rooms.sessionFor(roomCode)?.isHost) { <button class="button button-secondary submission-host-action" type="button" (click)="rooms.startListening()">ENCERRAR E OUVIR</button> }
+  } @else {
+    <section class="host-only-choosing">
+      <div class="host-only-status">
+        <p class="submission-progress">{{ game.submittedCount }} de {{ game.playersCount }} escolheram</p>
+        @if (game.waitingNextRoundCount) { <small>+ {{ game.waitingNextRoundCount }} jogador(es) entra(m) na próxima rodada</small> }
+      </div>
+      <div class="host-only-leaderboard"><app-leaderboard [entries]="game.leaderboard" /></div>
+      <app-room-qr class="host-only-qr" [roomCode]="roomCode" />
+    </section>
+  }
+  @if (rooms.sessionFor(roomCode)?.isHost) { <div class="phase-action-bar submission-host-action"><button class="button button-secondary button-contained" type="button" (click)="rooms.startListening()">ENCERRAR E OUVIR</button></div> }
 } @else { <app-loader label="Reconectando à sala..." /> }
 </section></main>
