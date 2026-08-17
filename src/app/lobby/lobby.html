@@ -60,6 +60,11 @@
           <button type="button" class="small-button" (click)="copyCode()">COPIAR CÓDIGO</button>
           <button type="button" class="small-button" (click)="copyLink()">COPIAR LINK</button>
         </div>
+        @if (rooms.sessionFor(room.roomCode)?.isHost) {
+          <div class="lobby-qr">
+            <app-room-qr [roomCode]="room.roomCode" />
+          </div>
+        }
       </header>
 
       <section class="lobby-section">

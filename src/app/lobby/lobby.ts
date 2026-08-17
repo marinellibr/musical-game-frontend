@@ -2,12 +2,13 @@ import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
+import { RoomQr } from '../shared/room-qr/room-qr';
 
 export const MIN_PLAYERS_TO_START = 2;
 
 @Component({
   selector: 'app-lobby',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, RoomQr],
   templateUrl: './lobby.html',
 })
 export class Lobby implements OnInit, OnDestroy {
