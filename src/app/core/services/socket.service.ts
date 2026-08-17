@@ -4,6 +4,25 @@ import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { GameSettings, GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomState, RoundResultView, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
 
+const DEFAULT_GAME_SETTINGS: GameSettings = {
+  totalRounds: 10,
+  choosingDurationSeconds: 180,
+};
+
+type IncomingRoomState = Omit<RoomState, 'settings'> & {
+  settings?: Partial<GameSettings> | null;
+};
+
+function normalizeRoomState(state: IncomingRoomState): RoomState {
+  const totalRounds = [3, 5, 10].includes(state.settings?.totalRounds ?? 0)
+    ? state.settings!.totalRounds as GameSettings['totalRounds']
+    : DEFAULT_GAME_SETTINGS.totalRounds;
+  const choosingDurationSeconds = [180, 360, 540].includes(state.settings?.choosingDurationSeconds ?? 0)
+    ? state.settings!.choosingDurationSeconds as GameSettings['choosingDurationSeconds']
+    : DEFAULT_GAME_SETTINGS.choosingDurationSeconds;
+  return { ...state, settings: { totalRounds, choosingDurationSeconds } };
+}
+
 export interface RoomSocketError {
   code: string;
   message: string;
@@ -53,7 +72,7 @@ export class SocketService {
       reconnectionDelay: 500,
       reconnectionDelayMax: 5_000,
     });
-    this.socket.on('room:state', (state: RoomState) => this.roomStateSubject.next(state));
+    this.socket.on('room:state', (state: IncomingRoomState) => this.roomStateSubject.next(normalizeRoomState(state)));
     this.socket.on('connect', () => this.connectionStateSubject.next('connected'));
     this.socket.io.on('reconnect_attempt', () => this.connectionStateSubject.next('reconnecting'));
     this.socket.on('disconnect', (reason) => this.connectionStateSubject.next(reason === 'io client disconnect' ? 'idle' : 'disconnected'));

@@ -135,7 +135,7 @@ select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-ra
   margin-top: 18px;
 }
 .lobby-qr { margin-top: 24px; }
-.lobby-qr .room-qr img { width: min(58vw, 220px); }
+.lobby-qr .room-qr img { width:100%; max-width:100%; }
 .small-button {
   padding: 9px 12px;
   border: 1px solid #000;
