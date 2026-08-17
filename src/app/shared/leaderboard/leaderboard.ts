@@ -13,10 +13,13 @@ import { AppIcon } from '../icon/icon';
       @else if (entries().length) {
         <ol>
           @for (entry of entries(); track entry.playerId) {
-            <li>
-              <span><b>{{ entry.position }}.</b> {{ entry.username }}</span>
-              <strong>{{ entry.voteBalance > 0 ? '+' : '' }}{{ entry.voteBalance }}</strong>
-              <small class="icon-metrics"><span><app-icon name="like" size="sm" /> {{ entry.totalLikes }}</span><span><app-icon name="dislike" size="sm" /> {{ entry.totalDislikes }}</span></small>
+            <li class="leaderboard-row">
+              <div class="leaderboard-main">
+                <b class="leaderboard-position">{{ entry.position }}.</b>
+                <strong class="leaderboard-name">{{ entry.username }}</strong>
+                <span class="leaderboard-balance"><small>SALDO</small><b>{{ entry.voteBalance > 0 ? '+' : '' }}{{ entry.voteBalance }}</b></span>
+              </div>
+              <div class="icon-metrics leaderboard-votes"><span><app-icon name="like" size="sm" /> {{ entry.totalLikes }}</span><span><app-icon name="dislike" size="sm" /> {{ entry.totalDislikes }}</span></div>
             </li>
           }
         </ol>
