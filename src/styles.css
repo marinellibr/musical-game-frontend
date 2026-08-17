@@ -539,14 +539,14 @@ body:has(.dev-mock-toolbar) .page-shell { padding-bottom:96px; }
   .listening-content > .media-player-shell { grid-row:4 / span 4; width:100%; margin:0; padding:var(--space-3); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
   .listening-content > .external-media-link, .listening-content > .listening-actions,
   .listening-content > .waiting-message, .listening-content > .button { grid-column:2; margin:0; }
-  .listening-v2-content > .listening-media-info { grid-column:2; grid-row:3; min-width:0; padding:var(--bento-padding); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
-  .listening-v2-content > .listening-media-info h1 { margin:0; }
-  .listening-v2-content > .listening-media-info .media-artist { margin:var(--space-1) 0 0; }
-  .listening-v2-content > .media-player-shell { grid-column:1; grid-row:3 / span 5; }
-  .listening-v2-content > .player-ready-actions { grid-column:2; grid-row:4; }
-  .listening-v2-content > .host-only-ready-panel { grid-column:1 / -1; grid-row:3; width:min(100%,720px); justify-self:center; }
-  .listening-v2-content > .host-player-ready-panel { grid-column:2; grid-row:5; }
-  .listening-v2-content > .listening-follow-message { grid-column:2; }
+  .listening-game-content > .listening-media-info { grid-column:2; grid-row:3; min-width:0; padding:var(--bento-padding); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
+  .listening-game-content > .listening-media-info h1 { margin:0; }
+  .listening-game-content > .listening-media-info .media-artist { margin:var(--space-1) 0 0; }
+  .listening-game-content > .media-player-shell { grid-column:1; grid-row:3 / span 5; }
+  .listening-game-content > .player-ready-actions { grid-column:2; grid-row:4; }
+  .listening-game-content > .host-only-ready-panel { grid-column:1 / -1; grid-row:3; width:min(100%,720px); justify-self:center; }
+  .listening-game-content > .host-player-ready-panel { grid-column:2; grid-row:5; }
+  .listening-game-content > .listening-follow-message { grid-column:2; }
   .listening-actions { grid-template-columns:1fr; }
   .voting-groups { grid-template-columns:repeat(2,minmax(0,1fr)); max-height:48dvh; }
   .scoreboard-content { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,2fr) minmax(0,1fr); gap:var(--bento-gap); }

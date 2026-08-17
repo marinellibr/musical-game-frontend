@@ -1,9 +1,9 @@
 import { Component, effect, inject, input, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { GameCategory, GameSettings } from '../../../core/models/room.models';
-import { ApiService } from '../../../core/services/api.service';
-import { RoomService } from '../../../core/services/room.service';
-import { Skeleton } from '../../../shared/skeleton/skeleton';
+import { GameCategory, GameSettings } from '../../core/models/room.models';
+import { ApiService } from '../../core/services/api.service';
+import { RoomService } from '../../core/services/room.service';
+import { Skeleton } from '../../shared/skeleton/skeleton';
 import { CategoryCard } from './category-card';
 
 @Component({

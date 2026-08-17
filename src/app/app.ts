@@ -16,8 +16,7 @@ export class App {
   private readonly router = inject(Router);
 
   leaveRoom(): void {
-    const version = this.rooms.state()?.gameVersion || 'v1';
     this.rooms.clearSession();
-    void this.router.navigate(homeRoute(version));
+    void this.router.navigate(homeRoute());
   }
 }

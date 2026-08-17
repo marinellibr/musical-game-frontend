@@ -7,8 +7,8 @@ import { Loader } from '../shared/loader/loader';
 import { Skeleton } from '../shared/skeleton/skeleton';
 import { AppIcon } from '../shared/icon/icon';
 import { ChoosingDurationSeconds, TotalRounds } from '../core/models/room.models';
-import { gameRoute, gameVersionFromUrl, homeRoute } from '../core/routing/game-route';
-import { CategorySelection } from '../features/v2/category-selection/category-selection';
+import { gameRoute, homeRoute } from '../core/routing/game-route';
+import { CategorySelection } from '../features/category-selection/category-selection';
 
 export const MIN_PLAYERS_TO_START = 3;
 
@@ -34,7 +34,7 @@ export class Lobby implements OnInit, OnDestroy {
   readonly startingGame = signal(false);
   readonly totalRoundOptions: readonly TotalRounds[] = [3, 5, 10];
   readonly choosingDurationOptions: readonly ChoosingDurationSeconds[] = [180, 360, 540];
-  get backRoute(): string[] { return homeRoute(gameVersionFromUrl(this.router.url)); }
+  get backRoute(): string[] { return homeRoute(); }
 
   constructor() {
     effect(() => {
@@ -45,12 +45,12 @@ export class Lobby implements OnInit, OnDestroy {
         ? [state.host, ...state.players].find((player) => player.playerId === session.playerId)
         : null;
       if (state && currentPlayer?.participationStatus === 'WAITING_NEXT_ROUND') {
-        void this.router.navigate(gameRoute(state.gameVersion, state.roomCode, 'waiting'));
+        void this.router.navigate(gameRoute(state.roomCode, 'waiting'));
         return;
       }
       if (state && state.roomCode === routeRoomCode && state.status !== 'LOBBY') {
         this.startingGame.set(false);
-        void this.router.navigate(gameRoute(state.gameVersion, state.roomCode, 'theme'));
+        void this.router.navigate(gameRoute(state.roomCode, 'theme'));
       }
       const pendingRemoval = this.removalPendingId();
       if (pendingRemoval && state && !state.players.some((player) => player.playerId === pendingRemoval)) this.removalPendingId.set(null);
@@ -92,7 +92,7 @@ export class Lobby implements OnInit, OnDestroy {
     this.joining.set(true);
     this.joinError.set('');
     try {
-      const session = await this.rooms.join(this.roomCode, this.username.trim(), gameVersionFromUrl(this.router.url));
+      const session = await this.rooms.join(this.roomCode, this.username.trim());
       this.hasSession.set(true);
       this.rooms.connect(session);
     } catch (error) {
@@ -119,7 +119,7 @@ export class Lobby implements OnInit, OnDestroy {
 
   startGame(): void {
     const settings = this.rooms.state()?.settings;
-    const categoriesReady = this.rooms.state()?.gameVersion !== 'v2' || (settings?.selectedCategories?.length || 0) >= 2;
+    const categoriesReady = (settings?.selectedCategories.length || 0) >= 2;
     if (this.playingCount() >= MIN_PLAYERS_TO_START && categoriesReady) {
       this.startingGame.set(true);
       this.rooms.startGame();
@@ -145,8 +145,7 @@ export class Lobby implements OnInit, OnDestroy {
   }
 
   goHome(): void {
-    const version = this.rooms.state()?.gameVersion || gameVersionFromUrl(this.router.url);
     this.rooms.clearSession();
-    void this.router.navigate(homeRoute(version));
+    void this.router.navigate(homeRoute());
   }
 }

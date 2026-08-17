@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DevMockStep, RoomService } from '../../core/services/room.service';
-import { gameRoute, GamePhaseRoute, gameVersionFromUrl } from '../../core/routing/game-route';
+import { GamePhaseRoute } from '../../core/routing/game-route';
 
 interface MockNavigationItem { step: DevMockStep; label: string; route: GamePhaseRoute; }
 
@@ -39,15 +39,16 @@ export class DevMockToolbar implements OnInit {
   get roleLabel(): string { return this.rooms.mockRole === 'host-only' ? 'HOST ONLY' : this.rooms.mockRole === 'player' ? 'PLAYER' : 'HOST + PLAYER'; }
 
   async ngOnInit(): Promise<void> {
-    const initialVersion = this.router.url === '/' ? 'v2' : gameVersionFromUrl(this.router.url);
-    this.rooms.setMockVersion(initialVersion);
     await this.rooms.initializeMock();
-    if (this.router.url === '/') await this.router.navigate(gameRoute(initialVersion, this.rooms.state()?.roomCode || 'MOCK'));
+    if (this.router.url === '/') await this.router.navigate(['/mock', this.roleSegment]);
   }
 
   open(item: MockNavigationItem): void {
     this.rooms.activateMockStep(item.step);
-    const roomCode = this.rooms.state()?.roomCode || 'MOCK';
-    void this.router.navigate(gameRoute(gameVersionFromUrl(this.router.url), roomCode, item.route));
+    void this.router.navigate(['/mock', this.roleSegment, ...(item.route ? [item.route] : [])]);
+  }
+
+  private get roleSegment(): string {
+    return this.rooms.mockRole === 'host-only' ? 'host-only' : this.rooms.mockRole === 'player' ? 'player' : 'host';
   }
 }

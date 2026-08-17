@@ -11,71 +11,22 @@ import { Submission } from './submission/submission';
 import { ThemeReveal } from './theme-reveal/theme-reveal';
 import { Voting } from './voting/voting';
 import { Waiting } from './waiting/waiting';
-import { ListeningV2 } from './features/v2/listening/listening-v2';
+
+const phases = [
+  { path: '', component: Lobby }, { path: 'theme', component: ThemeReveal },
+  { path: 'submission', component: Submission }, { path: 'waiting', component: Waiting },
+  { path: 'listening', component: Listening }, { path: 'voting', component: Voting },
+  { path: 'round-result', component: RoundResult }, { path: 'scoreboard', component: Scoreboard },
+  { path: 'game-result', component: GameResult }, { path: 'summary', component: GameSummary },
+] as const;
 
 export const routes: Routes = [
-  {
-    path: '',
-    component: Home,
-  },
-  {
-    path: 'join',
-    component: JoinRoom,
-  },
-  { path: 'v2', component: Home },
-  { path: 'v2/join', component: JoinRoom },
-  { path: 'v2/room/:roomCode', component: Lobby },
-  { path: 'v2/room/:roomCode/theme', component: ThemeReveal },
-  { path: 'v2/room/:roomCode/submission', component: Submission },
-  { path: 'v2/room/:roomCode/waiting', component: Waiting },
-  { path: 'v2/room/:roomCode/listening', component: ListeningV2 },
-  { path: 'v2/room/:roomCode/voting', component: Voting },
-  { path: 'v2/room/:roomCode/round-result', component: RoundResult },
-  { path: 'v2/room/:roomCode/scoreboard', component: Scoreboard },
-  { path: 'v2/room/:roomCode/game-result', component: GameResult },
-  { path: 'v2/room/:roomCode/summary', component: GameSummary },
-  {
-    path: 'room/:roomCode',
-    component: Lobby,
-  },
-  {
-    path: 'room/:roomCode/theme',
-    component: ThemeReveal,
-  },
-  {
-    path: 'room/:roomCode/submission',
-    component: Submission,
-  },
-  {
-    path: 'room/:roomCode/waiting',
-    component: Waiting,
-  },
-  {
-    path: 'room/:roomCode/listening',
-    component: Listening,
-  },
-  {
-    path: 'room/:roomCode/voting',
-    component: Voting,
-  },
-  {
-    path: 'room/:roomCode/round-result',
-    component: RoundResult,
-  },
-  {
-    path: 'room/:roomCode/scoreboard',
-    component: Scoreboard,
-  },
-  {
-    path: 'room/:roomCode/game-result',
-    component: GameResult,
-  },
-  {
-    path: 'room/:roomCode/summary',
-    component: GameSummary,
-  },
-  {
-    path: '**',
-    redirectTo: '',
-  },
+  { path: '', component: Home }, { path: 'join', component: JoinRoom },
+  ...phases.map(({ path, component }) => ({ path: `room/:roomCode${path ? `/${path}` : ''}`, component })),
+  { path: 'mock', redirectTo: 'mock/host', pathMatch: 'full' },
+  ...phases.map(({ path, component }) => ({ path: `mock/:role${path ? `/${path}` : ''}`, component })),
+  { path: 'v2', redirectTo: '', pathMatch: 'full' }, { path: 'v2/join', redirectTo: 'join', pathMatch: 'full' },
+  ...phases.map(({ path }) => ({ path: `v2/room/:roomCode${path ? `/${path}` : ''}`, redirectTo: `room/:roomCode${path ? `/${path}` : ''}`, pathMatch: 'full' as const })),
+  ...phases.map(({ path }) => ({ path: `v2/mock/:role${path ? `/${path}` : ''}`, redirectTo: `mock/:role${path ? `/${path}` : ''}`, pathMatch: 'full' as const })),
+  { path: '**', redirectTo: '' },
 ];

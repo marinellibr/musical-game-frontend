@@ -1,20 +1,45 @@
-<main class="page-shell listening-page"><section class="page-content listening-content">
+<main class="page-shell listening-page"><section class="page-content listening-content listening-game-content">
   @if (rooms.listeningState(); as listening) {
     <p class="eyebrow">{{ listening.theme.title }}</p>
-    @if (listening.finished) {
-      <section class="listening-finished"><h1>Todas as escolhas foram ouvidas</h1>
-      @if (rooms.sessionFor(roomCode)?.isHost) { <div class="phase-action-bar"><button class="button button-primary async-button" type="button" [disabled]="startingVoting()" (click)="startVoting()">@if (startingVoting()) { <app-loader compact label="INICIANDO..." /> } @else { <span>{{ listening.votingEnabled ? 'INICIAR VOTAÇÃO' : 'VER RESULTADO' }}</span> }</button></div> } @else { <p class="waiting-message">Aguardando o host...</p> }</section>
-    } @else if (listening.current; as media) {
-      <p class="round-label">ESCOLHA {{ listening.index + 1 }} DE {{ listening.total }}</p>
-      <h1>{{ media.title }}</h1>@if (media.artist) { <p class="media-artist">{{ media.artist }}</p> }
-      @if (rooms.sessionFor(roomCode)?.isHost) {
-          <div class="media-player-shell">@if (changingMedia()) { <app-skeleton variant="media" label="Carregando próxima escolha" /> } @else if (rooms.mockEnabled) { <div class="mock-media-player"><span class="eyebrow">PLAYER MOCK</span><strong>{{ media.title }}</strong><small>Nenhuma mídia externa é carregada neste modo.</small></div> } @else {
-            @if (media.source === 'SPOTIFY' && media.spotifyTrackId) { <app-spotify-embed-player [trackId]="media.spotifyTrackId" /> }
-            @if (media.source === 'YOUTUBE' && media.youtubeVideoId) { <app-youtube-player [videoId]="media.youtubeVideoId" [startTime]="media.startTime" /> }
-          }</div>
-        <a class="text-link external-media-link icon-link" [href]="media.externalUrl" target="_blank" rel="noopener noreferrer">Abrir no {{ media.source === 'SPOTIFY' ? 'Spotify' : 'YouTube' }} <app-icon name="external-link" size="sm" /></a>
-        <div class="listening-actions"><button class="button button-secondary" type="button" [disabled]="changingMedia() || listening.index === 0" (click)="move('previous')">ANTERIOR</button><button class="button button-primary" type="button" [disabled]="changingMedia()" (click)="move('next')">@if (changingMedia()) { <app-loader compact label="CARREGANDO..." /> } @else { PRÓXIMA }</button></div>
-      } @else { <p class="waiting-message">Aguardando o host...</p> }
+    @if (isListeningPlayer() && currentMedia(); as media) {
+      <p class="round-label">ESCOLHA {{ localIndex() + 1 }} DE {{ playlist().length }}</p>
+      <section class="listening-media-info" aria-live="polite"><h1>{{ media.title }}</h1><p class="media-artist">{{ media.artist || (media.source === 'SPOTIFY' ? 'Artista não informado' : 'Canal não informado') }}</p></section>
+      <div class="media-player-shell">
+        @if (changingMedia() || !renderMedia()) { <app-skeleton variant="media" label="Carregando escolha" /> }
+        @else if (rooms.mockEnabled) { <div class="mock-media-player"><span class="eyebrow">{{ media.source }} EMBED</span><strong>{{ media.title }}</strong><small>Player externo desativado no mock local.</small></div> }
+        @else {
+          @if (media.source === 'SPOTIFY' && media.spotifyTrackId) { <app-spotify-embed-player [trackId]="media.spotifyTrackId" /> }
+          @else if (media.source === 'YOUTUBE' && media.youtubeVideoId) { <app-youtube-player [videoId]="media.youtubeVideoId" [startTime]="media.startTime" /> }
+          @else { <p class="embed-error">Não foi possível carregar esta mídia.</p> }
+        }
+      </div>
+      <a class="text-link external-media-link icon-link" [href]="media.externalUrl" target="_blank" rel="noopener noreferrer">Abrir no {{ media.source === 'SPOTIFY' ? 'Spotify' : 'YouTube' }} <app-icon name="external-link" size="sm" /></a>
+    }
+
+    @if (isListeningPlayer()) {
+      <section class="listening-ready-panel player-ready-actions">
+        <div class="listening-local-navigation">
+          <button class="button button-secondary" type="button" [disabled]="changingMedia() || localIndex() === 0" (click)="previousMedia()">ANTERIOR</button>
+          <button class="button button-secondary" type="button" [disabled]="changingMedia() || localIndex() >= playlist().length - 1" (click)="nextMedia()">@if (changingMedia()) { <app-loader compact label="CARREGANDO..." /> } @else { PRÓXIMA }</button>
+        </div>
+        @if (canMarkReady()) {
+          <button class="button" [class.button-primary]="!isReady()" [class.button-secondary]="isReady()" type="button" [attr.aria-pressed]="isReady()" (click)="toggleReady()">{{ isReady() ? 'PRONTO ✓' : 'PRONTO' }}</button>
+          @if (isReady()) { <p class="waiting-message">Aguardando o host iniciar a votação...</p> }
+        }
+      </section>
+    }
+
+    @if (isHost()) {
+      <section class="listening-finished listening-ready-panel host-ready-panel" [class.host-only-ready-panel]="!isListeningPlayer()" [class.host-player-ready-panel]="isListeningPlayer()">
+          <h2>JOGADORES PRONTOS</h2>
+          <h3>PRONTOS</h3>
+          <div class="ready-player-list">
+            @for (player of listening.readyPlayers; track player.playerId) { <div class="player-row"><strong>{{ player.username }}</strong><span [class.ready-confirmed]="player.ready">{{ player.ready ? 'PRONTO ✓' : 'AGUARDANDO…' }}</span></div> }
+            @empty { <p class="muted">Não há jogadores non-host elegíveis nesta rodada.</p> }
+          </div>
+          <p class="ready-count">{{ listening.readyCount }} de {{ listening.eligibleReadyCount }} prontos</p>
+          <button class="button button-primary async-button" type="button" [disabled]="!listening.canStartVoting || startingVoting()" (click)="startVoting()">@if (startingVoting()) { <app-loader compact label="INICIANDO..." /> } @else { INICIAR VOTAÇÃO }</button>
+      </section>
     }
   } @else { <app-loader label="Sincronizando audição..." /> }
 </section></main>

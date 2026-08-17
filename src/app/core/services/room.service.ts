@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FinalAnalysis, GameFinishedView, GameSettings, GameTheme, GameVersion, GroupVote, LeaderboardEntry, PlayerSession, PublicGameState, PublicListeningState, PublicMedia, PublicPlayer, RoomEntryResponse, RoomState, RoundResultView, SpotifyTrack, SubmissionInput, ThemeReaction, VotingView, YouTubeMetadata } from '../models/room.models';
+import { FinalAnalysis, GameFinishedView, GameSettings, GameTheme, GroupVote, LeaderboardEntry, PlayerSession, PublicGameState, PublicListeningState, PublicMedia, PublicPlayer, RoomEntryResponse, RoomState, RoundResultView, SpotifyTrack, SubmissionInput, ThemeReaction, VotingView, YouTubeMetadata } from '../models/room.models';
 import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
 import { SocketConnectionState, SocketService } from './socket.service';
@@ -42,10 +42,9 @@ export class RoomService {
   readonly resultLoading = signal(false);
   readonly resultError = signal('');
   private submissionRoundKey = '';
-  readonly mockRole: 'host' | 'host-only' | 'player' | null = environment.mockRole;
+  readonly mockRole: 'host' | 'host-only' | 'player' | null = this.resolveMockRole();
   readonly mockEnabled = this.mockRole !== null;
   readonly mockReady = signal(false);
-  readonly mockGameVersion = signal<GameVersion>('v1');
   readonly activeMockStep = signal<DevMockStep>('LOBBY');
   private mockData: DevMockData | null = null;
 
@@ -123,21 +122,21 @@ export class RoomService {
     this.sockets.gameFinished$.subscribe((result) => { if (result) { this.finishedResult.set(result); this.resultLoading.set(false); this.resultError.set(''); } });
   }
 
-  async create(username: string, isPlaying: boolean, gameVersion: GameVersion = 'v1'): Promise<PlayerSession> {
+  async create(username: string, isPlaying: boolean): Promise<PlayerSession> {
     this.error.set('');
     try {
-      const response = await firstValueFrom(this.api.createRoom(username, isPlaying, gameVersion));
+      const response = await firstValueFrom(this.api.createRoom(username, isPlaying));
       return this.storeResponse(response);
     } catch (error) {
       throw new Error(this.messageFor(error, 'Não foi possível criar a sala. Tente novamente.'));
     }
   }
 
-  async join(roomCode: string, username: string, gameVersion: GameVersion = 'v1'): Promise<PlayerSession> {
+  async join(roomCode: string, username: string): Promise<PlayerSession> {
     this.error.set('');
     try {
       const response = await firstValueFrom(this.api.joinRoom(roomCode, username));
-      return this.storeResponse({ ...response, gameVersion: response.gameVersion || gameVersion });
+      return this.storeResponse(response);
     } catch (error) {
       throw new Error(this.messageFor(error, 'Não foi possível entrar na sala.'));
     }
@@ -169,7 +168,7 @@ export class RoomService {
   sessionFor(roomCode: string): PlayerSession | null {
     if (this.mockEnabled) {
       const isPlayer = this.mockRole === 'player';
-      return { roomCode: (roomCode || this.mockData?.roomCode || 'MOCK').toUpperCase(), playerId: isPlayer ? 'mock-player-1' : 'mock-host', playerToken: 'local-mock-token', username: isPlayer ? 'Carol' : 'Luiz (Host)', isHost: !isPlayer, isPlaying: this.mockRole !== 'host-only', gameVersion: this.mockGameVersion() };
+      return { roomCode: (roomCode || this.mockData?.roomCode || 'MOCK').toUpperCase(), playerId: isPlayer ? 'mock-player-1' : 'mock-host', playerToken: 'local-mock-token', username: isPlayer ? 'Carol' : 'Luiz (Host)', isHost: !isPlayer, isPlaying: this.mockRole !== 'host-only' };
     }
     return this.sessions.getForRoom(roomCode);
   }
@@ -179,7 +178,7 @@ export class RoomService {
     const response = await fetch('/mock.json', { cache: 'no-store' });
     if (!response.ok) throw new Error('Não foi possível carregar mock.json.');
     this.mockData = await response.json() as DevMockData;
-    this.activateMockStep('LOBBY');
+    this.activateMockStep(this.mockStepFromPath(globalThis.location?.pathname || ''));
     this.connectionState.set('connected');
     this.mockReady.set(true);
   }
@@ -207,10 +206,10 @@ export class RoomService {
       waitingNextRoundCount: 0,
       leaderboard,
     };
-    const mockAnalysis = roomStep === 'GAME_RESULTS' && this.mockGameVersion() === 'v2' ? this.mockAnalysis(data) : undefined;
+    const mockAnalysis = roomStep === 'GAME_RESULTS' ? this.mockAnalysis(data) : undefined;
     if (game && mockAnalysis) game.analysis = mockAnalysis;
-    this.state.set({ roomCode: data.roomCode, sessionId: 'mock-session-v2', status: roomStep, gameVersion: this.mockGameVersion(), host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
-    this.finishedResult.set(mockAnalysis ? { sessionId: 'mock-session-v2', leaderboard, analysis: mockAnalysis } : null);
+    this.state.set({ roomCode: data.roomCode, sessionId: 'mock-session', status: roomStep, host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
+    this.finishedResult.set(mockAnalysis ? { sessionId: 'mock-session', leaderboard, analysis: mockAnalysis } : null);
     this.hasSubmitted.set(false);
     this.submittedMedia.set(null);
     if (listeningScenario) {
@@ -228,7 +227,6 @@ export class RoomService {
 
   mockTracks(): SpotifyTrack[] { return this.mockData?.spotifyTracks || []; }
   mockYouTube(): YouTubeMetadata | null { return this.mockData?.youtube || null; }
-  setMockVersion(version: GameVersion): void { if (!this.mockReady()) this.mockGameVersion.set(version); }
 
   private mockRoundResult(data: DevMockData, leaderboard: LeaderboardEntry[]): RoundResultView {
     return { round: 2, totalRounds: data.settings.totalRounds, theme: data.theme, revealStage: 'RANKING', leaderboard, isLastRound: false, ranking: data.media.map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, authors: [{ playerId: data.players[index]?.playerId || 'mock-player', username: data.players[index]?.username || 'Jogador' }], likes: 6 - index, dislikes: index, voteBalance: 6 - index * 2, position: index + 1 })) };
@@ -287,15 +285,9 @@ export class RoomService {
       const data = this.mockData;
       const current = this.listeningState();
       if (data && current) {
-        if (this.mockGameVersion() === 'v2') {
-          const lastIndex = Math.max(0, current.total - 1);
-          const finishing = direction === 'next' && current.index >= lastIndex;
-          const index = finishing ? current.index : direction === 'next' ? Math.min(current.index + 1, lastIndex) : Math.max(current.index - 1, 0);
-          this.listeningState.set({ ...current, index, current: data.media[index] || null, items: data.media, finished: finishing ? true : false, canStartVoting: current.readyCount > 0 || current.eligibleReadyCount === 0 });
-        } else {
-          const index = direction === 'next' ? Math.min(current.index + 1, current.total) : Math.max(current.index - 1, 0);
-          this.listeningState.set({ ...current, index, current: data.media[index] || null, finished: index >= current.total });
-        }
+        const lastIndex = Math.max(0, current.total - 1);
+        const index = direction === 'next' ? Math.min(current.index + 1, lastIndex) : Math.max(current.index - 1, 0);
+        this.listeningState.set({ ...current, index, current: data.media[index] || null, items: data.media });
       }
       return;
     }
@@ -342,13 +334,30 @@ export class RoomService {
       username: response.player.username,
       isHost: response.player.isHost,
       isPlaying: response.player.isPlaying,
-      gameVersion: response.gameVersion || 'v1',
     };
     this.sessions.save(session);
     this.requiresRejoin.set(false);
     this.wasRemoved.set(false);
     this.error.set('');
     return session;
+  }
+
+  private resolveMockRole(): 'host' | 'host-only' | 'player' | null {
+    const role = globalThis.location?.pathname.match(/\/mock\/(player|host|host-only|host-player)(?:\/|$)/)?.[1];
+    if (role === 'player') return 'player';
+    if (role === 'host-only') return 'host-only';
+    if (role === 'host' || role === 'host-player') return 'host';
+    return environment.mockRole;
+  }
+
+  private mockStepFromPath(pathname: string): DevMockStep {
+    const phase = pathname.match(/\/mock\/(?:player|host|host-only|host-player)\/([^/]+)/)?.[1];
+    const stepByPhase: Record<string, DevMockStep> = {
+      theme: 'THEME_REVEAL', submission: 'CHOOSING', waiting: 'CHOOSING',
+      listening: 'LISTENING', voting: 'VOTING', 'round-result': 'ROUND_RESULTS',
+      scoreboard: 'ROUND_RESULTS', 'game-result': 'GAME_RESULTS', summary: 'GAME_RESULTS',
+    };
+    return phase ? stepByPhase[phase] || 'LOBBY' : 'LOBBY';
   }
 
   private messageFor(error: unknown, fallback: string): string {

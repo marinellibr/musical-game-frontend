@@ -7,6 +7,7 @@ import { GameFinishedView, GameSettings, GroupVote, PlayerSession, PublicListeni
 const DEFAULT_GAME_SETTINGS: GameSettings = {
   totalRounds: 10,
   choosingDurationSeconds: 180,
+  selectedCategories: [],
 };
 
 type IncomingRoomState = Omit<RoomState, 'settings'> & {
@@ -20,8 +21,9 @@ function normalizeRoomState(state: IncomingRoomState): RoomState {
   const choosingDurationSeconds = [180, 360, 540].includes(state.settings?.choosingDurationSeconds ?? 0)
     ? state.settings!.choosingDurationSeconds as GameSettings['choosingDurationSeconds']
     : DEFAULT_GAME_SETTINGS.choosingDurationSeconds;
-  const selectedCategories = Array.isArray(state.settings?.selectedCategories) ? [...new Set(state.settings.selectedCategories)] : undefined;
-  return { ...state, gameVersion: state.gameVersion === 'v2' ? 'v2' : 'v1', settings: { totalRounds, choosingDurationSeconds, ...(selectedCategories ? { selectedCategories } : {}) } };
+  const selectedCategories = Array.isArray(state.settings?.selectedCategories) ? [...new Set(state.settings.selectedCategories)] : [];
+  const { gameVersion: _legacyVersion, ...currentState } = state as IncomingRoomState & { gameVersion?: string };
+  return { ...currentState, settings: { totalRounds, choosingDurationSeconds, selectedCategories } };
 }
 
 export interface RoomSocketError {

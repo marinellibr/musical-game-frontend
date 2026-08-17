@@ -1,7 +1,7 @@
 import { booleanAttribute, Component, computed, input, output } from '@angular/core';
-import { GameCategory } from '../../../core/models/room.models';
-import { AppIcon } from '../../../shared/icon/icon';
-import { themeCategoryColor } from '../../../shared/theme-card/theme-card';
+import { GameCategory } from '../../core/models/room.models';
+import { AppIcon } from '../../shared/icon/icon';
+import { themeCategoryColor } from '../../shared/theme-card/theme-card';
 
 @Component({
   selector: 'app-category-card',

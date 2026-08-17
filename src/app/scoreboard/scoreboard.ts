@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
 import { Leaderboard } from '../shared/leaderboard/leaderboard';
-import { gameRoute, gameVersionFromUrl } from '../core/routing/game-route';
+import { gameRoute } from '../core/routing/game-route';
 
 @Component({
   selector: 'app-scoreboard',
@@ -11,5 +11,5 @@ import { gameRoute, gameVersionFromUrl } from '../core/routing/game-route';
 })
 export class Scoreboard implements OnInit {
   readonly rooms = inject(RoomService); private readonly route = inject(ActivatedRoute); private readonly router = inject(Router); roomCode = '';
-  ngOnInit(): void { this.roomCode = (this.route.snapshot.paramMap.get('roomCode') || '').toUpperCase(); const session = this.rooms.sessionFor(this.roomCode); if (session) this.rooms.connect(session); else void this.router.navigate(gameRoute(gameVersionFromUrl(this.router.url), this.roomCode)); }
+  ngOnInit(): void { this.roomCode = (this.route.snapshot.paramMap.get('roomCode') || '').toUpperCase(); const session = this.rooms.sessionFor(this.roomCode); if (session) this.rooms.connect(session); else void this.router.navigate(gameRoute(this.roomCode)); }
 }

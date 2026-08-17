@@ -63,7 +63,7 @@
           </div>
           @if (rooms.sessionFor(room.roomCode)?.isHost) {
             <div class="lobby-qr">
-              <app-room-qr [roomCode]="room.roomCode" [gameVersion]="room.gameVersion" />
+              <app-room-qr [roomCode]="room.roomCode" />
             </div>
           }
         </header>
@@ -142,9 +142,7 @@
         </div>
 
         <div class="lobby-action-column">
-          @if (room.gameVersion === 'v2') {
-            <app-category-selection [settings]="room.settings" [isHost]="!!rooms.sessionFor(room.roomCode)?.isHost" />
-          }
+          <app-category-selection [settings]="room.settings" [isHost]="!!rooms.sessionFor(room.roomCode)?.isHost" />
 
           <p class="player-count">
             {{ playingCount() }} {{ playingCount() === 1 ? 'jogador' : 'jogadores' }}
@@ -152,7 +150,7 @@
           </p>
 
           @if (rooms.sessionFor(room.roomCode)?.isHost) {
-            <button class="button button-primary" type="button" [disabled]="startingGame() || playingCount() < minPlayersToStart || (room.gameVersion === 'v2' && (room.settings.selectedCategories?.length || 0) < 2)" (click)="startGame()">
+            <button class="button button-primary" type="button" [disabled]="startingGame() || playingCount() < minPlayersToStart || room.settings.selectedCategories.length < 2" (click)="startGame()">
               @if (startingGame()) { <app-loader compact label="INICIANDO..." /> } @else { INICIAR PARTIDA }
             </button>
             @if (rooms.error()) { <p class="error-message">{{ rooms.error() }}</p> }

@@ -8,7 +8,6 @@ import {
   RoomState,
   GameCategory,
   GameTheme,
-  GameVersion,
   SpotifyTrack,
   YouTubeMetadata,
   GameFinishedView,
@@ -18,18 +17,15 @@ import {
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
+  private readonly mockEnabled = Boolean(environment.mockRole || globalThis.location?.pathname.startsWith('/mock/'));
 
-  createRoom(username: string, isPlaying: boolean, gameVersion: GameVersion): Observable<CreateRoomResponse> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.host, username, isPlaying }, playerToken: 'local-mock-token', gameVersion })));
-    return this.http.post<CreateRoomResponse>(`${this.baseUrl}/rooms`, {
-      username,
-      isPlaying,
-      gameVersion,
-    });
+  createRoom(username: string, isPlaying: boolean): Observable<CreateRoomResponse> {
+    if (this.mockEnabled) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.host, username, isPlaying }, playerToken: 'local-mock-token' })));
+    return this.http.post<CreateRoomResponse>(`${this.baseUrl}/rooms`, { username, isPlaying });
   }
 
   joinRoom(roomCode: string, username: string): Observable<JoinRoomResponse> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.players[0], username }, playerToken: 'local-mock-token', gameVersion: 'v2' as const })));
+    if (this.mockEnabled) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.players[0], username }, playerToken: 'local-mock-token' })));
     return this.http.post<JoinRoomResponse>(
       `${this.baseUrl}/rooms/${encodeURIComponent(roomCode)}/join`,
       { username },
@@ -37,7 +33,7 @@ export class ApiService {
   }
 
   getRoom(roomCode: string): Observable<RoomState> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, sessionId: 'mock-session-v2', status: 'LOBBY', gameVersion: 'v2' as const, host: data.host, players: data.players, settings: data.settings, game: null })));
+    if (this.mockEnabled) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, sessionId: 'mock-session', status: 'LOBBY', host: data.host, players: data.players, settings: data.settings, game: null })));
     return this.http.get<RoomState>(
       `${this.baseUrl}/rooms/${encodeURIComponent(roomCode)}`,
     );
@@ -48,22 +44,22 @@ export class ApiService {
   }
 
   searchSpotify(query: string): Observable<{ query: string; items: SpotifyTrack[] }> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ query, items: data.spotifyTracks })));
+    if (this.mockEnabled) return this.mockData().pipe(map((data) => ({ query, items: data.spotifyTracks })));
     return this.http.get<{ query: string; items: SpotifyTrack[] }>(`${this.baseUrl}/spotify/search`, { params: { q: query } });
   }
 
   getAlbumTracks(albumId: string): Observable<{ albumId: string; items: SpotifyTrack[] }> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ albumId, items: data.spotifyTracks })));
+    if (this.mockEnabled) return this.mockData().pipe(map((data) => ({ albumId, items: data.spotifyTracks })));
     return this.http.get<{ albumId: string; items: SpotifyTrack[] }>(`${this.baseUrl}/spotify/albums/${encodeURIComponent(albumId)}/tracks`);
   }
 
   getGameCategories(): Observable<{ items: GameCategory[] }> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => ({ items: this.groupMockCategories(data.themes || []) })));
+    if (this.mockEnabled) return this.mockData().pipe(map((data) => ({ items: this.groupMockCategories(data.themes || []) })));
     return this.http.get<{ items: GameCategory[] }>(`${this.baseUrl}/game-categories`);
   }
 
   validateYouTube(url: string): Observable<YouTubeMetadata> {
-    if (environment.mockRole) return this.mockData().pipe(map((data) => data.youtube));
+    if (this.mockEnabled) return this.mockData().pipe(map((data) => data.youtube));
     return this.http.get<YouTubeMetadata>(`${this.baseUrl}/youtube/metadata`, { params: { url } });
   }
 
