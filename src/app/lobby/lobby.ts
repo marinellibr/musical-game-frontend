@@ -19,6 +19,7 @@ export class Lobby implements OnInit, OnDestroy {
   checking = true;
   joinError = '';
   hasSession = false;
+  removingPlayerId: string | null = null;
 
   readonly playingCount = computed(() => {
     const state = this.rooms.state();
@@ -62,6 +63,19 @@ export class Lobby implements OnInit, OnDestroy {
     } finally {
       this.joining = false;
     }
+  }
+
+  confirmRemove(playerId: string): void {
+    this.removingPlayerId = playerId;
+  }
+
+  cancelRemove(): void {
+    this.removingPlayerId = null;
+  }
+
+  removePlayer(playerId: string): void {
+    this.rooms.removePlayer(playerId);
+    this.removingPlayerId = null;
   }
 
   async copyCode(): Promise<void> {

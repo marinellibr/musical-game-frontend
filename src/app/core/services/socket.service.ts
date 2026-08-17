@@ -15,9 +15,11 @@ export class SocketService {
   private sessionKey = '';
   private readonly roomStateSubject = new BehaviorSubject<RoomState | null>(null);
   private readonly errorSubject = new Subject<RoomSocketError>();
+  private readonly removedSubject = new Subject<void>();
 
   readonly roomState$ = this.roomStateSubject.asObservable();
   readonly error$ = this.errorSubject.asObservable();
+  readonly removed$ = this.removedSubject.asObservable();
 
   connect(session: PlayerSession): void {
     const key = `${session.roomCode}:${session.playerId}`;
@@ -39,12 +41,17 @@ export class SocketService {
     });
     this.socket.on('room:state', (state: RoomState) => this.roomStateSubject.next(state));
     this.socket.on('room:error', (error: RoomSocketError) => this.errorSubject.next(error));
+    this.socket.on('player:removed', () => this.removedSubject.next());
     this.socket.on('connect_error', () =>
       this.errorSubject.next({
         code: 'SERVER_UNAVAILABLE',
         message: 'Não foi possível conectar ao servidor.',
       }),
     );
+  }
+
+  removePlayer(playerId: string): void {
+    this.socket?.emit('player:remove', { playerId });
   }
 
   disconnect(): void {

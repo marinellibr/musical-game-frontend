@@ -14,6 +14,8 @@ export class RoomService {
 
   readonly state = signal<RoomState | null>(null);
   readonly error = signal('');
+  readonly requiresRejoin = signal(false);
+  readonly wasRemoved = signal(false);
 
   constructor() {
     this.sockets.roomState$.subscribe((state) => {
@@ -23,12 +25,41 @@ export class RoomService {
       }
     });
     this.sockets.error$.subscribe((error) => {
-      if (error.code === 'ROOM_NOT_FOUND' || error.code === 'INVALID_PLAYER_SESSION') {
+      if (
+        error.code === 'PLAYER_SESSION_EXPIRED' ||
+        error.code === 'INVALID_PLAYER_SESSION'
+      ) {
         this.sessions.clear();
+        this.sockets.disconnect();
+        this.state.set(null);
+        this.requiresRejoin.set(true);
+        this.error.set(
+          error.code === 'PLAYER_SESSION_EXPIRED'
+            ? 'Sua sessão expirou. Entre novamente.'
+            : 'Sua sessão não é mais válida. Entre novamente.',
+        );
+        return;
+      }
+      if (error.code === 'ROOM_NOT_FOUND') {
+        this.sessions.clear();
+        this.sockets.disconnect();
+        this.state.set(null);
         this.error.set('Essa sala não está mais disponível.');
         return;
       }
+      if (error.code === 'FORBIDDEN') {
+        this.error.set('Você não tem permissão para remover participantes.');
+        return;
+      }
       this.error.set('Não foi possível conectar ao servidor. Tente novamente em alguns segundos.');
+    });
+    this.sockets.removed$.subscribe(() => {
+      this.sessions.clear();
+      this.sockets.disconnect();
+      this.state.set(null);
+      this.wasRemoved.set(true);
+      this.requiresRejoin.set(false);
+      this.error.set('Você foi removido da sala pelo host.');
     });
   }
 
@@ -54,6 +85,8 @@ export class RoomService {
 
   connect(session: PlayerSession): void {
     this.error.set('');
+    this.requiresRejoin.set(false);
+    this.wasRemoved.set(false);
     this.sockets.connect(session);
   }
 
@@ -80,6 +113,13 @@ export class RoomService {
     this.sockets.disconnect();
     this.sessions.clear();
     this.state.set(null);
+    this.requiresRejoin.set(false);
+    this.wasRemoved.set(false);
+  }
+
+  removePlayer(playerId: string): void {
+    this.error.set('');
+    this.sockets.removePlayer(playerId);
   }
 
   private storeResponse(response: RoomEntryResponse): PlayerSession {
@@ -92,6 +132,9 @@ export class RoomService {
       isPlaying: response.player.isPlaying,
     };
     this.sessions.save(session);
+    this.requiresRejoin.set(false);
+    this.wasRemoved.set(false);
+    this.error.set('');
     return session;
   }
 

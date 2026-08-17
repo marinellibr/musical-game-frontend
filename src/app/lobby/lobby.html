@@ -4,7 +4,15 @@
 
     @if (checking) {
       <p>Conectando ao servidor...</p>
-    } @else if (rooms.error() && !hasSession) {
+    } @else if (rooms.wasRemoved()) {
+      <div class="form-stack">
+        <h1>Você saiu da sala</h1>
+        <p class="error-message">Você foi removido da sala pelo host.</p>
+        <button class="button button-primary" type="button" (click)="goHome()">
+          VOLTAR AO INÍCIO
+        </button>
+      </div>
+    } @else if (rooms.error() && !hasSession && !rooms.requiresRejoin()) {
       <div class="form-stack">
         <h1>Sala indisponível</h1>
         <p class="error-message">{{ rooms.error() }}</p>
@@ -12,9 +20,13 @@
           VOLTAR PARA O INÍCIO
         </button>
       </div>
-    } @else if (!hasSession) {
+    } @else if (!hasSession || rooms.requiresRejoin()) {
       <form class="form-stack" (ngSubmit)="joinRoom()">
-        <h1>ENTRAR NA SALA {{ roomCode }}</h1>
+        <h1>ENTRAR NA SALA</h1>
+        <p class="direct-room-code">{{ roomCode }}</p>
+        @if (rooms.requiresRejoin() && rooms.error()) {
+          <p class="error-message">{{ rooms.error() }}</p>
+        }
         <label for="direct-name">Seu nome</label>
         <input
           id="direct-name"
@@ -68,9 +80,31 @@
         @for (player of room.players; track player.playerId) {
           @if (player.isPlaying) {
             <div class="player-row">
-              <strong>{{ player.username }}</strong>
-              @if (!player.connected) {
-                <span class="connection-state">Reconectando...</span>
+              <div>
+                <strong>{{ player.username }}</strong>
+                @if (!player.connected) {
+                  <span class="player-detail">Reconectando...</span>
+                }
+              </div>
+              @if (rooms.sessionFor(room.roomCode)?.isHost) {
+                @if (removingPlayerId === player.playerId) {
+                  <div class="remove-confirmation">
+                    <span>Remover {{ player.username }}?</span>
+                    <button type="button" class="text-action" (click)="cancelRemove()">
+                      CANCELAR
+                    </button>
+                    <button type="button" class="text-action" (click)="removePlayer(player.playerId)">
+                      REMOVER
+                    </button>
+                  </div>
+                } @else {
+                  <button
+                    type="button"
+                    class="remove-player"
+                    [attr.aria-label]="'Remover ' + player.username"
+                    (click)="confirmRemove(player.playerId)"
+                  >×</button>
+                }
               }
             </div>
           }
