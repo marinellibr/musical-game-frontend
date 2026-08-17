@@ -6,9 +6,9 @@
       @if (result.revealStage === 'RANKING') { <app-leaderboard title="PLACAR GERAL" [entries]="result.leaderboard" /> }
       <section class="round-results-column">
         <h1 class="result-stage-title">{{ result.revealStage === 'AUTHORS' ? 'Revelação das escolhas' : result.revealStage === 'VOTES' ? 'Resultados dos votos' : 'Resultado da rodada' }}</h1>
-        <section class="round-ranking">
+        <section class="round-ranking" appAnimatedList>
           @for (entry of result.ranking; track entry.groupId) {
-            <app-result-track-card [entry]="entry" [showPosition]="result.revealStage === 'RANKING'" [showVotes]="result.revealStage !== 'AUTHORS'" />
+            <app-result-track-card [attr.data-animation-key]="entry.groupId" [entry]="entry" [showPosition]="result.revealStage === 'RANKING'" [showVotes]="result.revealStage !== 'AUTHORS'" />
           }
         </section>
         @if (rooms.sessionFor(roomCode)?.isHost) {

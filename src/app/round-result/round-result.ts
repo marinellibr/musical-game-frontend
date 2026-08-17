@@ -7,10 +7,11 @@ import { ThemeCard } from '../shared/theme-card/theme-card';
 import { Skeleton } from '../shared/skeleton/skeleton';
 import { ResultTrackCard } from '../shared/result-track-card/result-track-card';
 import { gameRoute, gameVersionFromUrl } from '../core/routing/game-route';
+import { AnimatedList } from '../shared/animated-list/animated-list';
 
 @Component({
   selector: 'app-round-result',
-  imports: [Leaderboard, Loader, ResultTrackCard, Skeleton, ThemeCard],
+  imports: [AnimatedList, Leaderboard, Loader, ResultTrackCard, Skeleton, ThemeCard],
   templateUrl: './round-result.html',
 })
 export class RoundResult implements OnInit {

@@ -537,7 +537,7 @@ body:has(.dev-mock-toolbar) .page-shell { padding-bottom:96px; }
 @media (min-width:900px) {
   .results-layout { grid-template-columns:minmax(280px,.8fr) minmax(0,1.6fr); }
   .results-layout:not(:has(> app-leaderboard)) .round-results-column { grid-column:1 / -1; }
-  .round-ranking { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+  .round-ranking { grid-template-columns:minmax(0,1fr); align-items:start; }
   .result-track-card { grid-template-columns:84px minmax(0,1fr) auto; }
   .result-artwork { width:84px; }
 }
