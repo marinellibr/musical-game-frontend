@@ -1,0 +1,76 @@
+name: Deploy Angular to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build Angular application
+        run: npm run build -- --base-href "${{ steps.pages.outputs.base_path }}/"
+
+      - name: Prepare SPA artifact
+        id: artifact
+        shell: bash
+        run: |
+          index_file="$(find dist -type f -path '*/browser/index.html' -print -quit)"
+          if [[ -z "$index_file" ]]; then
+            echo "Angular browser index.html was not found under dist." >&2
+            exit 1
+          fi
+
+          artifact_dir="$(dirname "$index_file")"
+          cp "$index_file" "$artifact_dir/404.html"
+          mkdir -p "$artifact_dir/assets"
+
+          test -f "$artifact_dir/index.html"
+          test -f "$artifact_dir/404.html"
+          find "$artifact_dir" -maxdepth 1 -type f -name '*.js' -print -quit | grep -q .
+          find "$artifact_dir" -maxdepth 1 -type f -name '*.css' -print -quit | grep -q .
+
+          echo "path=$artifact_dir" >> "$GITHUB_OUTPUT"
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ steps.artifact.outputs.path }}
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

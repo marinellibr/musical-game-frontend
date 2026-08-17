@@ -36,6 +36,16 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+## GitHub Pages deployment
+
+Deployment runs automatically through GitHub Actions whenever changes are pushed to `main`. The workflow builds the Angular application with the repository's Pages base path and generates `404.html` from the built `index.html` so that direct links to Angular routes work.
+
+In the GitHub repository, the only manual setup required is:
+
+**Settings → Pages → Build and deployment → Source → GitHub Actions**
+
+No `gh-pages` branch is used.
+
 ## Running unit tests
 
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
