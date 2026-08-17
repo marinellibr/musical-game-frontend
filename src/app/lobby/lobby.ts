@@ -8,7 +8,7 @@ import { Skeleton } from '../shared/skeleton/skeleton';
 import { AppIcon } from '../shared/icon/icon';
 import { ChoosingDurationSeconds, TotalRounds } from '../core/models/room.models';
 
-export const MIN_PLAYERS_TO_START = 2;
+export const MIN_PLAYERS_TO_START = 3;
 
 @Component({
   selector: 'app-lobby',

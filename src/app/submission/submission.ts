@@ -30,6 +30,20 @@ export class Submission implements OnInit, OnDestroy {
   private async loadAlbum(): Promise<void> { const id = this.rooms.state()?.game?.currentTheme.sourceReference?.id; if (!id) { this.formError.set('Álbum não configurado para este tema.'); return; } this.loading.set('spotify'); this.spotifySearched.set(false); try { this.spotifyResults.set((await firstValueFrom(this.api.getAlbumTracks(id))).items); } catch { this.formError.set('Não foi possível carregar as faixas do álbum.'); } finally { this.spotifySearched.set(true); this.loading.set(''); } }
   chooseTrack(track: SpotifyTrack): void { this.selectedTrack.set(track); this.saveDraft(); }
   changeChoice(): void { this.rooms.resetSubmissionState(); this.selectedTrack.set(null); this.youtubeMetadata.set(null); this.saveDraft(); }
+  async pasteYouTubeLink(): Promise<void> {
+    this.formError.set('');
+    try {
+      if (!navigator.clipboard?.readText) throw new Error('Clipboard API unavailable');
+      const link = (await navigator.clipboard.readText()).trim();
+      if (!link) { this.formError.set('Não há nenhum link na área de transferência.'); return; }
+      this.youtubeUrl = link;
+      this.youtubeMetadata.set(null);
+      this.saveDraft();
+      await this.validateYouTube();
+    } catch {
+      this.formError.set('Não foi possível colar o link. Permita o acesso à área de transferência.');
+    }
+  }
   async validateYouTube(): Promise<void> { if (!this.youtubeUrl.trim()) return; this.loading.set('youtube'); this.formError.set(''); try { const metadata = await firstValueFrom(this.api.validateYouTube(this.youtubeUrl.trim())); this.youtubeMetadata.set(metadata); this.setStartTime(metadata.startTime); this.saveDraft(); } catch (error: any) { const code = error?.error?.error?.code; this.formError.set(code === 'INVALID_URL' ? 'Link do YouTube inválido.' : code === 'VIDEO_NOT_FOUND' ? 'Não encontramos esse vídeo.' : 'Não foi possível verificar o vídeo agora. Tente novamente.'); this.youtubeMetadata.set(null); } finally { this.loading.set(''); } }
   submit(): void { const theme = this.rooms.state()?.game?.currentTheme; if (!theme || this.remainingSeconds() <= 0) return; const track = this.selectedTrack(); const youtube = this.youtubeMetadata(); if (track) this.rooms.submitChoice({ source:'SPOTIFY', title:track.title, artist:track.artist, spotifyTrackId:track.trackId, thumbnail:track.image }); else if (youtube && (theme.type !== 'MOMENT' || this.startTime !== null)) this.rooms.submitChoice({ source:'YOUTUBE', title:youtube.title, artist:youtube.channel, youtubeVideoId:youtube.videoId, startTime:this.startTime ?? 0, thumbnail:youtube.thumbnail || undefined }); else return; this.loading.set('submit'); }
   saveDraft(): void { const theme = this.rooms.state()?.game?.currentTheme; if (!theme) return; this.drafts.save({ roomCode:this.roomCode, roundId:this.roundId(), themeId:theme.id, youtubeUrl:this.youtubeUrl || undefined, startTime:this.startTime, spotifyTrack:this.selectedTrack() || undefined, youtubeMetadata:this.youtubeMetadata() || undefined }); }

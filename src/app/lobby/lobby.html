@@ -148,6 +148,7 @@
 
       <p class="player-count">
         {{ playingCount() }} {{ playingCount() === 1 ? 'jogador' : 'jogadores' }}
+        @if (playingCount() < minPlayersToStart) { <span class="player-minimum">Mínimo de {{ minPlayersToStart }} jogadores para iniciar</span> }
       </p>
 
       @if (rooms.sessionFor(room.roomCode)?.isHost) {
