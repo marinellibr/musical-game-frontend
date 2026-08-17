@@ -42,6 +42,7 @@ export class RoomService {
   readonly mockRole: 'host' | 'host-only' | 'player' | null = environment.mockRole;
   readonly mockEnabled = this.mockRole !== null;
   readonly mockReady = signal(false);
+  readonly mockGameVersion = signal<GameVersion>('v1');
   private mockData: DevMockData | null = null;
 
   constructor() {
@@ -90,6 +91,9 @@ export class RoomService {
         this.error.set('Você não tem permissão para realizar esta ação.');
         return;
       }
+      if (error.code === 'MIN_CATEGORIES_REQUIRED') { this.error.set('Escolha pelo menos 2 categorias.'); return; }
+      if (error.code === 'INVALID_CATEGORY') { this.error.set('Uma das categorias selecionadas não está mais disponível.'); return; }
+      if (error.code === 'NOT_ENOUGH_THEMES') { this.error.set('Não há temas suficientes para essa configuração.'); return; }
       this.error.set('Não foi possível conectar ao servidor. Tente novamente em alguns segundos.');
     });
     this.sockets.removed$.subscribe(() => {
@@ -156,7 +160,7 @@ export class RoomService {
   sessionFor(roomCode: string): PlayerSession | null {
     if (this.mockEnabled) {
       const isPlayer = this.mockRole === 'player';
-      return { roomCode: (roomCode || this.mockData?.roomCode || 'MOCK').toUpperCase(), playerId: isPlayer ? 'mock-player-1' : 'mock-host', playerToken: 'local-mock-token', username: isPlayer ? 'Carol' : 'Luiz (Host)', isHost: !isPlayer, isPlaying: this.mockRole !== 'host-only', gameVersion: 'v2' };
+      return { roomCode: (roomCode || this.mockData?.roomCode || 'MOCK').toUpperCase(), playerId: isPlayer ? 'mock-player-1' : 'mock-host', playerToken: 'local-mock-token', username: isPlayer ? 'Carol' : 'Luiz (Host)', isHost: !isPlayer, isPlaying: this.mockRole !== 'host-only', gameVersion: this.mockGameVersion() };
     }
     return this.sessions.getForRoom(roomCode);
   }
@@ -191,7 +195,7 @@ export class RoomService {
       waitingNextRoundCount: 0,
       leaderboard,
     };
-    this.state.set({ roomCode: data.roomCode, status: step, gameVersion: 'v2', host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
+    this.state.set({ roomCode: data.roomCode, status: step, gameVersion: this.mockGameVersion(), host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
     this.hasSubmitted.set(false);
     this.submittedMedia.set(null);
     this.listeningState.set(step === 'LISTENING' ? { theme: data.theme, index: 0, total: data.media.length, current: data.media[0], finished: false, votingEnabled: true } : null);
@@ -202,6 +206,7 @@ export class RoomService {
 
   mockTracks(): SpotifyTrack[] { return this.mockData?.spotifyTracks || []; }
   mockYouTube(): YouTubeMetadata | null { return this.mockData?.youtube || null; }
+  setMockVersion(version: GameVersion): void { if (!this.mockReady()) this.mockGameVersion.set(version); }
 
   private mockRoundResult(data: DevMockData, leaderboard: LeaderboardEntry[]): RoundResultView {
     return { round: 2, totalRounds: data.settings.totalRounds, theme: data.theme, revealStage: 'RANKING', leaderboard, isLastRound: false, ranking: data.media.map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, authors: [{ playerId: data.players[index]?.playerId || 'mock-player', username: data.players[index]?.username || 'Jogador' }], likes: 6 - index, dislikes: index, voteBalance: 6 - index * 2, position: index + 1 })) };

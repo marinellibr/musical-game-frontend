@@ -6,6 +6,7 @@ import { Loader } from '../shared/loader/loader';
 import { ThemeCard } from '../shared/theme-card/theme-card';
 import { Skeleton } from '../shared/skeleton/skeleton';
 import { AppIcon } from '../shared/icon/icon';
+import { gameRoute, gameVersionFromUrl } from '../core/routing/game-route';
 
 @Component({
   selector: 'app-theme-reveal',
@@ -40,7 +41,7 @@ export class ThemeReveal implements OnInit {
         this.swappingFromThemeId = null;
       }
       if (state?.status === 'CHOOSING') {
-        void this.router.navigate(['/room', state.roomCode, 'submission']);
+        void this.router.navigate(gameRoute(state.gameVersion, state.roomCode, 'submission'));
       }
     });
   }
@@ -49,7 +50,7 @@ export class ThemeReveal implements OnInit {
     this.roomCode = (this.route.snapshot.paramMap.get('roomCode') || '').toUpperCase();
     const session = this.rooms.sessionFor(this.roomCode);
     if (!session) {
-      void this.router.navigate(['/room', this.roomCode]);
+      void this.router.navigate(gameRoute(gameVersionFromUrl(this.router.url), this.roomCode));
       return;
     }
     this.rooms.connect(session);

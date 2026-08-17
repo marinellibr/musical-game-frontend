@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
 import { Loader } from '../shared/loader/loader';
 import { AppIcon } from '../shared/icon/icon';
+import { gameRoute, gameVersionFromUrl } from '../core/routing/game-route';
 
 @Component({
   selector: 'app-voting',
@@ -23,13 +24,13 @@ export class Voting implements OnInit, OnDestroy {
     effect(() => {
       if (this.rooms.votingView()?.hasVoted) this.submitting.set(false);
       if (this.rooms.error()) this.submitting.set(false);
-      if (this.rooms.state()?.status === 'ROUND_RESULTS') void this.router.navigate(['/room', this.roomCode, 'round-result']);
+      const state = this.rooms.state(); if (state?.status === 'ROUND_RESULTS') void this.router.navigate(gameRoute(state.gameVersion, this.roomCode, 'round-result'));
     });
   }
   ngOnInit(): void {
     this.roomCode = (this.route.snapshot.paramMap.get('roomCode') || '').toUpperCase();
     const session = this.rooms.sessionFor(this.roomCode);
-    if (session) this.rooms.connect(session); else void this.router.navigate(['/room', this.roomCode]);
+    if (session) this.rooms.connect(session); else void this.router.navigate(gameRoute(gameVersionFromUrl(this.router.url), this.roomCode));
     this.clockTimer = setInterval(() => this.now.set(Date.now()), 250);
   }
   ngOnDestroy(): void { if (this.clockTimer) clearInterval(this.clockTimer); }

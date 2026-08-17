@@ -18,7 +18,7 @@
         @if (game.waitingNextRoundCount) { <small>+ {{ game.waitingNextRoundCount }} jogador(es) entra(m) na próxima rodada</small> }
       </div>
       <div class="host-only-leaderboard"><app-leaderboard [entries]="game.leaderboard" /></div>
-      <app-room-qr class="host-only-qr" [roomCode]="roomCode" />
+      <app-room-qr class="host-only-qr" [roomCode]="roomCode" [gameVersion]="rooms.state()?.gameVersion || 'v1'" />
     </section>
   }
   @if (rooms.sessionFor(roomCode)?.isHost) { <div class="phase-action-bar submission-host-action"><button class="button button-secondary button-contained" type="button" (click)="rooms.startListening()">ENCERRAR E OUVIR</button></div> }

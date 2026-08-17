@@ -41,7 +41,7 @@
         <button class="button button-primary async-button" [disabled]="joining()">
           @if (joining()) { <app-loader compact label="ENTRANDO..." /> } @else { ENTRAR }
         </button>
-        <a class="text-link" routerLink="/">Voltar</a>
+        <a class="text-link" [routerLink]="backRoute">Voltar</a>
       </form>
     } @else if (rooms.error() && !rooms.state()) {
       <div class="form-stack">
@@ -62,7 +62,7 @@
         </div>
         @if (rooms.sessionFor(room.roomCode)?.isHost) {
           <div class="lobby-qr">
-            <app-room-qr [roomCode]="room.roomCode" />
+            <app-room-qr [roomCode]="room.roomCode" [gameVersion]="room.gameVersion" />
           </div>
         }
       </header>
@@ -146,6 +146,10 @@
         }
       </section>
 
+      @if (room.gameVersion === 'v2') {
+        <app-category-selection [settings]="room.settings" [isHost]="!!rooms.sessionFor(room.roomCode)?.isHost" />
+      }
+
       <p class="player-count">
         {{ playingCount() }} {{ playingCount() === 1 ? 'jogador' : 'jogadores' }}
         @if (playingCount() < minPlayersToStart) { <span class="player-minimum">Mínimo de {{ minPlayersToStart }} jogadores para iniciar</span> }
@@ -155,9 +159,10 @@
         <button
           class="button button-primary"
           type="button"
-          [disabled]="startingGame() || playingCount() < minPlayersToStart"
+          [disabled]="startingGame() || playingCount() < minPlayersToStart || (room.gameVersion === 'v2' && (room.settings.selectedCategories?.length || 0) < 2)"
           (click)="startGame()"
         >@if (startingGame()) { <app-loader compact label="INICIANDO..." /> } @else { INICIAR PARTIDA }</button>
+        @if (rooms.error()) { <p class="error-message">{{ rooms.error() }}</p> }
       } @else {
         <p class="waiting-message">Aguardando o host iniciar a partida...</p>
       }

@@ -49,6 +49,7 @@ export class CategorySelection implements OnInit {
       this.selected.set([...authoritative]);
       this.updating.set(false);
     });
+    effect(() => { const error = this.rooms.error(); if (error && this.updating()) { this.updating.set(false); this.feedback.set(error); } });
   }
 
   ngOnInit(): void { void this.load(); }
