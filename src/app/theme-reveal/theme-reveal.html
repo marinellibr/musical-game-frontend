@@ -1,6 +1,11 @@
 <main class="page-shell theme-page">
   <section class="page-content theme-content">
-    @if (rooms.state()?.game; as game) {
+    @if (swappingTheme()) {
+      <div class="theme-loader" role="status" aria-live="polite">
+        <span class="circular-loader" aria-hidden="true"></span>
+        <p>Trocando tema...</p>
+      </div>
+    } @else if (rooms.state()?.game; as game) {
       <p class="round-label">RODADA {{ game.round }} / {{ game.totalRounds }}</p>
       <p class="eyebrow theme-label">TEMA</p>
       <h1 class="theme-title" [attr.data-theme-id]="game.currentTheme.id">
@@ -48,7 +53,10 @@
         <p class="waiting-message">Aguardando o host iniciar...</p>
       }
     } @else {
-      <p>Sincronizando tema...</p>
+      <div class="theme-loader" role="status" aria-live="polite">
+        <span class="circular-loader" aria-hidden="true"></span>
+        <p>Carregando tema...</p>
+      </div>
     }
   </section>
 </main>

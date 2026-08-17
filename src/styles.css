@@ -179,7 +179,25 @@ input:not([type='checkbox']):focus { box-shadow: inset 0 0 0 1px #000; }
 .reaction-button { width: 76px; height: 64px; border: 1px solid #000; border-radius: 8px; background: #fff; font-size: 2rem; cursor: pointer; }
 .reaction-button.active { background: #000; border-width: 3px; filter: grayscale(1) invert(1); }
 .theme-host-actions { display: grid; gap: 12px; margin-top: 34px; }
+.theme-loader {
+  min-height: 320px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  font-weight: 700;
+}
+.theme-loader p { margin: 0; }
+.circular-loader {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #d8d8d8;
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: loader-spin .7s linear infinite;
+}
 @keyframes theme-reveal { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes loader-spin { to { transform: rotate(360deg); } }
 @media (min-width: 800px) {
   .theme-page .page-content { width: min(100%, 1000px); }
   .theme-host-actions { width: min(100%, 480px); margin-inline: auto; }

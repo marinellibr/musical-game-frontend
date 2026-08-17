@@ -12,11 +12,28 @@ export class ThemeReveal implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly actionPending = signal(false);
+  readonly swappingTheme = signal(false);
+  private swappingFromThemeId: string | null = null;
   roomCode = '';
 
   constructor() {
     effect(() => {
       const state = this.rooms.state();
+      const currentThemeId = state?.game?.currentTheme.id;
+      if (this.swappingTheme() && this.rooms.error()) {
+        this.swappingTheme.set(false);
+        this.actionPending.set(false);
+        this.swappingFromThemeId = null;
+      }
+      if (
+        this.swappingTheme() &&
+        currentThemeId &&
+        currentThemeId !== this.swappingFromThemeId
+      ) {
+        this.swappingTheme.set(false);
+        this.actionPending.set(false);
+        this.swappingFromThemeId = null;
+      }
       if (state?.status === 'CHOOSING') {
         void this.router.navigate(['/room', state.roomCode, 'submission']);
       }
@@ -40,9 +57,10 @@ export class ThemeReveal implements OnInit {
 
   swapTheme(): void {
     if (this.actionPending()) return;
+    this.swappingFromThemeId = this.rooms.state()?.game?.currentTheme.id ?? null;
+    this.swappingTheme.set(true);
     this.actionPending.set(true);
     this.rooms.swapTheme();
-    setTimeout(() => this.actionPending.set(false), 500);
   }
 
   startRound(): void {
