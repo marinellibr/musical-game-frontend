@@ -185,6 +185,17 @@ select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-ra
   text-align: center;
   font-weight: 700;
 }
+.game-settings-card { display:grid; gap:var(--space-4); }
+.game-settings-card h2 { margin:0; }
+.preset-group { display:grid; gap:var(--space-2); min-width:0; margin:0; padding:0; border:0; }
+.preset-group legend { margin-bottom:var(--space-2); font-size:.72rem; font-weight:700; letter-spacing:.12em; }
+.segmented-control { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-2); }
+.segmented-control button { min-width:0; min-height:42px; border:1px solid var(--border-neutral); border-radius:999px; background:#fff; color:#000; font-size:.75rem; font-weight:600; cursor:pointer; }
+.segmented-control button.selected { border:2px solid #000; background:#000; color:#fff; font-weight:800; }
+.settings-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-3); margin:0; }
+.settings-summary div { padding:var(--space-3); border:1px solid var(--border-neutral); border-radius:var(--card-radius); }
+.settings-summary dt { color:#666; font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.settings-summary dd { margin:var(--space-1) 0 0; font-size:1.1rem; font-weight:800; }
 .theme-content { text-align: center; }
 .theme-card { --theme-accent:#111; border:2px solid var(--theme-accent); border-radius:8px; padding:24px; margin:20px 0 28px; text-align:left; }
 .theme-card h1 { margin:14px 0 0; }
@@ -410,6 +421,7 @@ app-spotify-track-card { display:block; width:100%; max-width:100%; min-width:0;
   .game-result-content { grid-template-columns:minmax(0,1fr) minmax(320px,2fr) minmax(0,1fr); width:min(100%,1000px); }
   .game-result-content > .eyebrow, .game-result-content > h1 { grid-column:1 / -1; }
   .game-result-content > .leaderboard { grid-column:2; grid-row:auto; }
+  .game-result-content > .game-restart-button, .game-result-content > .game-home-button, .game-result-content > .waiting-message { grid-column:2; }
   .scoreboard-content { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,2fr) minmax(0,1fr); gap:var(--bento-gap); }
   .scoreboard-content > .eyebrow { grid-column:1 / -1; }
   .scoreboard-content > .leaderboard { grid-column:2; }

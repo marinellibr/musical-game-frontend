@@ -7,12 +7,19 @@ export interface PublicPlayer {
   participationStatus: ParticipationStatus;
 }
 export type ParticipationStatus = 'ACTIVE' | 'WAITING_NEXT_ROUND';
+export type TotalRounds = 3 | 5 | 10;
+export type ChoosingDurationSeconds = 180 | 360 | 540;
+export interface GameSettings {
+  totalRounds: TotalRounds;
+  choosingDurationSeconds: ChoosingDurationSeconds;
+}
 
 export interface RoomState {
   roomCode: string;
   status: string;
   host: PublicPlayer;
   players: PublicPlayer[];
+  settings: GameSettings;
   game: PublicGameState | null;
 }
 

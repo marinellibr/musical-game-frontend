@@ -118,6 +118,33 @@
         }
       </section>
 
+      <section class="lobby-section game-settings-card">
+        <h2>CONFIGURAÇÃO DA PARTIDA</h2>
+        @if (rooms.sessionFor(room.roomCode)?.isHost) {
+          <fieldset class="preset-group">
+            <legend>RODADAS</legend>
+            <div class="segmented-control">
+              @for (option of totalRoundOptions; track option) {
+                <button type="button" [class.selected]="room.settings.totalRounds === option" [attr.aria-pressed]="room.settings.totalRounds === option" (click)="setTotalRounds(option)">{{ option }}</button>
+              }
+            </div>
+          </fieldset>
+          <fieldset class="preset-group">
+            <legend>TEMPO PARA ESCOLHER</legend>
+            <div class="segmented-control">
+              @for (option of choosingDurationOptions; track option) {
+                <button type="button" [class.selected]="room.settings.choosingDurationSeconds === option" [attr.aria-pressed]="room.settings.choosingDurationSeconds === option" (click)="setChoosingDuration(option)">{{ option / 60 }} MIN</button>
+              }
+            </div>
+          </fieldset>
+        } @else {
+          <dl class="settings-summary">
+            <div><dt>Rodadas</dt><dd>{{ room.settings.totalRounds }}</dd></div>
+            <div><dt>Tempo para escolher</dt><dd>{{ room.settings.choosingDurationSeconds / 60 }} min</dd></div>
+          </dl>
+        }
+      </section>
+
       <p class="player-count">
         {{ playingCount() }} {{ playingCount() === 1 ? 'jogador' : 'jogadores' }}
       </p>

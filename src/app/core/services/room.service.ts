@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomEntryResponse, RoomState, RoundResultView, SubmissionInput, ThemeReaction, VotingView } from '../models/room.models';
+import { GameSettings, GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomEntryResponse, RoomState, RoundResultView, SubmissionInput, ThemeReaction, VotingView } from '../models/room.models';
 import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
 import { SocketConnectionState, SocketService } from './socket.service';
@@ -34,6 +34,12 @@ export class RoomService {
           this.hasSubmitted.set(false);
           this.submittedMedia.set(null);
         }
+        if (state.status === 'LOBBY') {
+          this.myThemeReaction.set(null);
+          this.listeningState.set(null);
+          this.votingView.set(null);
+          this.roundResult.set(null);
+        }
         this.state.set(state);
         this.error.set('');
       }
@@ -62,7 +68,7 @@ export class RoomService {
         return;
       }
       if (error.code === 'FORBIDDEN') {
-        this.error.set('Você não tem permissão para remover participantes.');
+        this.error.set('Você não tem permissão para realizar esta ação.');
         return;
       }
       this.error.set('Não foi possível conectar ao servidor. Tente novamente em alguns segundos.');
@@ -153,6 +159,8 @@ export class RoomService {
     this.error.set('');
     this.sockets.startGame();
   }
+  updateSettings(settings: GameSettings): void { this.error.set(''); this.sockets.updateSettings(settings); }
+  restartGame(): void { this.error.set(''); this.sockets.restartGame(); }
 
   reactToTheme(reaction: ThemeReaction | null): void {
     this.sockets.reactToTheme(reaction);

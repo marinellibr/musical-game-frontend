@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
-import { GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomState, RoundResultView, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
+import { GameSettings, GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomState, RoundResultView, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
 
 export interface RoomSocketError {
   code: string;
@@ -81,6 +81,8 @@ export class SocketService {
   startGame(): void {
     this.socket?.emit('game:start');
   }
+  updateSettings(settings: GameSettings): void { this.socket?.emit('game:settings:update', settings); }
+  restartGame(): void { this.socket?.emit('game:restart'); }
 
   reactToTheme(reaction: ThemeReaction | null): void {
     this.socket?.emit('theme:react', { reaction });

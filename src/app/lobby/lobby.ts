@@ -6,6 +6,7 @@ import { RoomQr } from '../shared/room-qr/room-qr';
 import { Loader } from '../shared/loader/loader';
 import { Skeleton } from '../shared/skeleton/skeleton';
 import { AppIcon } from '../shared/icon/icon';
+import { ChoosingDurationSeconds, TotalRounds } from '../core/models/room.models';
 
 export const MIN_PLAYERS_TO_START = 2;
 
@@ -29,6 +30,8 @@ export class Lobby implements OnInit, OnDestroy {
   removingPlayerId: string | null = null;
   readonly removalPendingId = signal<string | null>(null);
   readonly startingGame = signal(false);
+  readonly totalRoundOptions: readonly TotalRounds[] = [3, 5, 10];
+  readonly choosingDurationOptions: readonly ChoosingDurationSeconds[] = [180, 360, 540];
 
   constructor() {
     effect(() => {
@@ -116,6 +119,16 @@ export class Lobby implements OnInit, OnDestroy {
       this.startingGame.set(true);
       this.rooms.startGame();
     }
+  }
+
+  setTotalRounds(totalRounds: TotalRounds): void {
+    const settings = this.rooms.state()?.settings;
+    if (settings && settings.totalRounds !== totalRounds) this.rooms.updateSettings({ ...settings, totalRounds });
+  }
+
+  setChoosingDuration(choosingDurationSeconds: ChoosingDurationSeconds): void {
+    const settings = this.rooms.state()?.settings;
+    if (settings && settings.choosingDurationSeconds !== choosingDurationSeconds) this.rooms.updateSettings({ ...settings, choosingDurationSeconds });
   }
 
   async copyCode(): Promise<void> {
