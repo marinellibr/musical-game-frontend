@@ -7,7 +7,7 @@ import { PlayerSessionService } from './player-session.service';
 import { SocketConnectionState, SocketService } from './socket.service';
 import { environment } from '../../../environments/environment';
 
-export type DevMockStep = 'LOBBY' | 'THEME_REVEAL' | 'CHOOSING' | 'LISTENING' | 'VOTING' | 'ROUND_RESULTS' | 'GAME_RESULTS';
+export type DevMockStep = 'LOBBY' | 'THEME_REVEAL' | 'CHOOSING' | 'LISTENING' | 'LISTENING_YOUTUBE' | 'LISTENING_FINISHED' | 'LISTENING_READY_ONE' | 'LISTENING_READY_ALL' | 'VOTING' | 'ROUND_RESULTS' | 'GAME_RESULTS';
 interface DevMockData {
   roomCode: string;
   settings: GameSettings;
@@ -43,6 +43,7 @@ export class RoomService {
   readonly mockEnabled = this.mockRole !== null;
   readonly mockReady = signal(false);
   readonly mockGameVersion = signal<GameVersion>('v1');
+  readonly activeMockStep = signal<DevMockStep>('LOBBY');
   private mockData: DevMockData | null = null;
 
   constructor() {
@@ -94,6 +95,9 @@ export class RoomService {
       if (error.code === 'MIN_CATEGORIES_REQUIRED') { this.error.set('Escolha pelo menos 2 categorias.'); return; }
       if (error.code === 'INVALID_CATEGORY') { this.error.set('Uma das categorias selecionadas não está mais disponível.'); return; }
       if (error.code === 'NOT_ENOUGH_THEMES') { this.error.set('Não há temas suficientes para essa configuração.'); return; }
+      if (error.code === 'LISTENING_READY_REQUIRED') { this.error.set('Aguarde pelo menos um jogador marcar PRONTO.'); return; }
+      if (error.code === 'LISTENING_NOT_FINISHED') { this.error.set('Encerre a audição antes de iniciar a votação.'); return; }
+      if (error.code === 'PLAYER_NOT_ACTIVE_THIS_ROUND') { this.error.set('Você não participa desta rodada.'); return; }
       this.error.set('Não foi possível conectar ao servidor. Tente novamente em alguns segundos.');
     });
     this.sockets.removed$.subscribe(() => {
@@ -178,29 +182,39 @@ export class RoomService {
   activateMockStep(step: DevMockStep): void {
     const data = this.mockData;
     if (!data) return;
+    this.activeMockStep.set(step);
+    const listeningScenario = step.startsWith('LISTENING');
+    const roomStep = listeningScenario ? 'LISTENING' : step;
     const host = { ...data.host, isPlaying: this.mockRole !== 'host-only' };
     const leaderboard = this.mockRole === 'host-only' ? data.leaderboard.filter((entry) => entry.playerId !== host.playerId) : data.leaderboard;
-    const game = step === 'LOBBY' ? null : {
-      round: step === 'GAME_RESULTS' ? data.settings.totalRounds : 2,
+    const game = roomStep === 'LOBBY' ? null : {
+      round: roomStep === 'GAME_RESULTS' ? data.settings.totalRounds : 2,
       totalRounds: data.settings.totalRounds,
-      phase: (step === 'THEME_REVEAL' ? 'THEME_SELECTION' : step === 'GAME_RESULTS' ? 'ROUND_RESULTS' : step) as 'THEME_SELECTION' | 'CHOOSING' | 'LISTENING' | 'VOTING' | 'ROUND_RESULTS',
+      phase: (roomStep === 'THEME_REVEAL' ? 'THEME_SELECTION' : roomStep === 'GAME_RESULTS' ? 'ROUND_RESULTS' : roomStep) as 'THEME_SELECTION' | 'CHOOSING' | 'LISTENING' | 'VOTING' | 'ROUND_RESULTS',
       currentTheme: data.theme,
       likes: 3,
       dislikes: 1,
       reactedPlayers: 4,
       playersCount: host.isPlaying ? 4 : 3,
-      roundStartedAt: step === 'CHOOSING' ? Date.now() : null,
-      roundEndsAt: step === 'CHOOSING' ? Date.now() + data.settings.choosingDurationSeconds * 1000 : null,
+      roundStartedAt: roomStep === 'CHOOSING' ? Date.now() : null,
+      roundEndsAt: roomStep === 'CHOOSING' ? Date.now() + data.settings.choosingDurationSeconds * 1000 : null,
       submittedCount: 2,
       waitingNextRoundCount: 0,
       leaderboard,
     };
-    this.state.set({ roomCode: data.roomCode, status: step, gameVersion: this.mockGameVersion(), host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
+    this.state.set({ roomCode: data.roomCode, status: roomStep, gameVersion: this.mockGameVersion(), host, players: data.players.map((player) => ({ ...player })), settings: { ...data.settings }, game });
     this.hasSubmitted.set(false);
     this.submittedMedia.set(null);
-    this.listeningState.set(step === 'LISTENING' ? { theme: data.theme, index: 0, total: data.media.length, current: data.media[0], finished: false, votingEnabled: true } : null);
-    this.votingView.set(step === 'VOTING' ? { ownSubmission: this.mockRole === 'host-only' ? null : data.media[0], groups: data.media.slice(1).map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, canVote: this.mockRole !== 'host-only' })), hasVoted: false, canVote: this.mockRole !== 'host-only', votedPlayers: [], eligiblePlayersCount: host.isPlaying ? 4 : 3, votingStartedAt: Date.now(), votingEndsAt: Date.now() + 60_000 } : null);
-    this.roundResult.set(step === 'ROUND_RESULTS' ? this.mockRoundResult(data, leaderboard) : null);
+    if (listeningScenario) {
+      const youtubeIndex = data.media.findIndex((media) => media.source === 'YOUTUBE');
+      const index = step === 'LISTENING_YOUTUBE' && youtubeIndex >= 0 ? youtubeIndex : step === 'LISTENING' ? 0 : data.media.length - 1;
+      const finished = ['LISTENING_FINISHED', 'LISTENING_READY_ONE', 'LISTENING_READY_ALL'].includes(step);
+      const readyPlayers = data.players.map((player, playerIndex) => ({ playerId: player.playerId, username: player.username, ready: step === 'LISTENING_READY_ALL' || (step === 'LISTENING_READY_ONE' && playerIndex === 0) }));
+      const readyCount = readyPlayers.filter((player) => player.ready).length;
+      this.listeningState.set({ theme: data.theme, index, total: data.media.length, current: data.media[index], finished, votingEnabled: true, readyPlayers, readyCount, eligibleReadyCount: readyPlayers.length, canStartVoting: finished && readyCount > 0 });
+    } else this.listeningState.set(null);
+    this.votingView.set(roomStep === 'VOTING' ? { ownSubmission: this.mockRole === 'host-only' ? null : data.media[0], groups: data.media.slice(1).map((media, index) => ({ groupId: `mock-group-${index + 1}`, media, canVote: this.mockRole !== 'host-only' })), hasVoted: false, canVote: this.mockRole !== 'host-only', votedPlayers: [], eligiblePlayersCount: host.isPlaying ? 4 : 3, votingStartedAt: Date.now(), votingEndsAt: Date.now() + 60_000 } : null);
+    this.roundResult.set(roomStep === 'ROUND_RESULTS' ? this.mockRoundResult(data, leaderboard) : null);
     this.error.set('');
   }
 
@@ -258,7 +272,39 @@ export class RoomService {
 
   submitChoice(input: SubmissionInput): void { this.error.set(''); if (this.mockEnabled) { this.hasSubmitted.set(true); this.submittedMedia.set({ ...input, startTime: input.startTime || 0, externalUrl: '#' }); return; } this.sockets.submitChoice(input); }
   startListening(): void { this.error.set(''); if (this.mockEnabled) { this.activateMockStep('LISTENING'); return; } this.sockets.startListening(); }
-  moveListening(direction: 'next' | 'previous'): void { this.error.set(''); if (this.mockEnabled) { const data = this.mockData; const current = this.listeningState(); if (data && current) { const index = direction === 'next' ? Math.min(current.index + 1, current.total) : Math.max(current.index - 1, 0); this.listeningState.set({ ...current, index, current: data.media[index] || null, finished: index >= current.total }); } return; } this.sockets.moveListening(direction); }
+  moveListening(direction: 'next' | 'previous'): void {
+    this.error.set('');
+    if (this.mockEnabled) {
+      const data = this.mockData;
+      const current = this.listeningState();
+      if (data && current) {
+        if (this.mockGameVersion() === 'v2') {
+          const lastIndex = Math.max(0, current.total - 1);
+          const finishing = direction === 'next' && current.index >= lastIndex;
+          const index = finishing ? current.index : direction === 'next' ? Math.min(current.index + 1, lastIndex) : Math.max(current.index - 1, 0);
+          this.listeningState.set({ ...current, index, current: data.media[index] || null, finished: finishing ? true : false, canStartVoting: finishing && (current.readyCount > 0 || current.eligibleReadyCount === 0) });
+        } else {
+          const index = direction === 'next' ? Math.min(current.index + 1, current.total) : Math.max(current.index - 1, 0);
+          this.listeningState.set({ ...current, index, current: data.media[index] || null, finished: index >= current.total });
+        }
+      }
+      return;
+    }
+    this.sockets.moveListening(direction);
+  }
+  setListeningReady(ready: boolean): void {
+    this.error.set('');
+    if (this.mockEnabled) {
+      const state = this.listeningState();
+      const session = this.sessionFor(this.state()?.roomCode || 'MOCK');
+      if (!state || !session) return;
+      const readyPlayers = state.readyPlayers.map((player) => player.playerId === session.playerId ? { ...player, ready } : player);
+      const readyCount = readyPlayers.filter((player) => player.ready).length;
+      this.listeningState.set({ ...state, readyPlayers, readyCount, canStartVoting: state.finished && (readyCount > 0 || readyPlayers.length === 0) });
+      return;
+    }
+    this.sockets.setListeningReady(ready);
+  }
   startVoting(): void { this.error.set(''); if (this.mockEnabled) { this.activateMockStep('VOTING'); return; } this.sockets.startVoting(); }
   submitVote(vote: GroupVote): void { this.error.set(''); if (this.mockEnabled) { const view = this.votingView(); if (view) this.votingView.set({ ...view, hasVoted: true }); return; } this.sockets.submitVote(vote); }
   advanceResult(): void { this.error.set(''); if (this.mockEnabled) { const result = this.roundResult(); if (result) this.roundResult.set({ ...result, revealStage: result.revealStage === 'AUTHORS' ? 'VOTES' : 'RANKING' }); return; } this.sockets.advanceResult(); }

@@ -91,6 +91,10 @@ export interface PublicListeningState {
   current: PublicMedia | null;
   finished: boolean;
   votingEnabled: boolean;
+  readyPlayers: Array<{ playerId: string; username: string; ready: boolean }>;
+  readyCount: number;
+  eligibleReadyCount: number;
+  canStartVoting: boolean;
 }
 
 export interface VotingGroup {

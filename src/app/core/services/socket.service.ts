@@ -119,6 +119,7 @@ export class SocketService {
   submitChoice(input: SubmissionInput): void { this.socket?.emit('submission:create', input); }
   startListening(): void { this.socket?.emit('listening:start'); }
   moveListening(direction: 'next' | 'previous'): void { this.socket?.emit(`listening:${direction}`); }
+  setListeningReady(ready: boolean): void { this.socket?.emit('listening:ready:set', { ready }); }
   startVoting(): void { this.socket?.emit('voting:start'); }
   submitVote(vote: GroupVote): void { this.socket?.emit('vote:submit', vote); }
   advanceResult(): void { this.socket?.emit('result:next'); }

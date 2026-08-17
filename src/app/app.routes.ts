@@ -11,6 +11,7 @@ import { Submission } from './submission/submission';
 import { ThemeReveal } from './theme-reveal/theme-reveal';
 import { Voting } from './voting/voting';
 import { Waiting } from './waiting/waiting';
+import { ListeningV2 } from './features/v2/listening/listening-v2';
 
 export const routes: Routes = [
   {
@@ -27,7 +28,7 @@ export const routes: Routes = [
   { path: 'v2/room/:roomCode/theme', component: ThemeReveal },
   { path: 'v2/room/:roomCode/submission', component: Submission },
   { path: 'v2/room/:roomCode/waiting', component: Waiting },
-  { path: 'v2/room/:roomCode/listening', component: Listening },
+  { path: 'v2/room/:roomCode/listening', component: ListeningV2 },
   { path: 'v2/room/:roomCode/voting', component: Voting },
   { path: 'v2/room/:roomCode/round-result', component: RoundResult },
   { path: 'v2/room/:roomCode/scoreboard', component: Scoreboard },

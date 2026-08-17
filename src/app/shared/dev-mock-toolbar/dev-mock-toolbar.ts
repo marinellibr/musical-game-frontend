@@ -13,7 +13,7 @@ interface MockNavigationItem { step: DevMockStep; label: string; route: GamePhas
         <div><strong>MOCK LOCAL</strong><span>{{ roleLabel }}</span></div>
         <nav>
           @for (item of items; track item.step) {
-            <button type="button" [class.active]="rooms.state()?.status === item.step" (click)="open(item)">{{ item.label }}</button>
+            <button type="button" [class.active]="rooms.activeMockStep() === item.step" (click)="open(item)">{{ item.label }}</button>
           }
         </nav>
       </aside>
@@ -28,6 +28,10 @@ export class DevMockToolbar implements OnInit {
     { step: 'THEME_REVEAL', label: 'Tema', route: 'theme' },
     { step: 'CHOOSING', label: 'Escolha', route: 'submission' },
     { step: 'LISTENING', label: 'Audição', route: 'listening' },
+    { step: 'LISTENING_YOUTUBE', label: 'YouTube', route: 'listening' },
+    { step: 'LISTENING_FINISHED', label: 'Fim · 0', route: 'listening' },
+    { step: 'LISTENING_READY_ONE', label: 'Fim · 1', route: 'listening' },
+    { step: 'LISTENING_READY_ALL', label: 'Fim · todos', route: 'listening' },
     { step: 'VOTING', label: 'Votação', route: 'voting' },
     { step: 'ROUND_RESULTS', label: 'Rodada', route: 'round-result' },
     { step: 'GAME_RESULTS', label: 'Final', route: 'game-result' },
