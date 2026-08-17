@@ -1,1 +1,35 @@
-<p>join-room works!</p>
+<main class="page-shell">
+  <section class="page-content">
+    <p class="eyebrow">MUSICAL GAME</p>
+    <form class="form-stack" (ngSubmit)="joinRoom()">
+      <h1>ENTRAR NA PARTIDA</h1>
+      <label for="room-code">Código da sala</label>
+      <input
+        id="room-code"
+        name="roomCode"
+        class="code-input"
+        [(ngModel)]="roomCode"
+        (input)="normalizeCode()"
+        maxlength="4"
+        autocomplete="off"
+        placeholder="K7MP"
+      />
+      <label for="player-name">Seu nome</label>
+      <input
+        id="player-name"
+        name="username"
+        [(ngModel)]="username"
+        maxlength="32"
+        autocomplete="name"
+        placeholder="Bruno"
+      />
+      @if (error) {
+        <p class="error-message">{{ error }}</p>
+      }
+      <button class="button button-primary" [disabled]="loading">
+        {{ loading ? 'ENTRANDO...' : 'ENTRAR' }}
+      </button>
+      <a class="text-link" routerLink="/">Voltar</a>
+    </form>
+  </section>
+</main>

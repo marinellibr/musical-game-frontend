@@ -1,1 +1,95 @@
-<p>lobby works!</p>
+<main class="page-shell">
+  <section class="page-content">
+    <p class="eyebrow">MUSICAL GAME</p>
+
+    @if (checking) {
+      <p>Conectando ao servidor...</p>
+    } @else if (rooms.error() && !hasSession) {
+      <div class="form-stack">
+        <h1>Sala indisponível</h1>
+        <p class="error-message">{{ rooms.error() }}</p>
+        <button class="button button-primary" type="button" (click)="goHome()">
+          VOLTAR PARA O INÍCIO
+        </button>
+      </div>
+    } @else if (!hasSession) {
+      <form class="form-stack" (ngSubmit)="joinRoom()">
+        <h1>ENTRAR NA SALA {{ roomCode }}</h1>
+        <label for="direct-name">Seu nome</label>
+        <input
+          id="direct-name"
+          name="username"
+          [(ngModel)]="username"
+          maxlength="32"
+          autocomplete="name"
+        />
+        @if (joinError) {
+          <p class="error-message">{{ joinError }}</p>
+        }
+        <button class="button button-primary" [disabled]="joining">
+          {{ joining ? 'ENTRANDO...' : 'ENTRAR' }}
+        </button>
+        <a class="text-link" routerLink="/">Voltar</a>
+      </form>
+    } @else if (rooms.error() && !rooms.state()) {
+      <div class="form-stack">
+        <h1>Sala indisponível</h1>
+        <p class="error-message">{{ rooms.error() }}</p>
+        <button class="button button-primary" type="button" (click)="goHome()">
+          VOLTAR PARA O INÍCIO
+        </button>
+      </div>
+    } @else if (rooms.state(); as room) {
+      <header class="room-header">
+        <span class="muted uppercase">Sala</span>
+        <h1 class="room-code">{{ room.roomCode }}</h1>
+        <p class="muted">Copie o código e envie para seus amigos.</p>
+        <div class="inline-actions">
+          <button type="button" class="small-button" (click)="copyCode()">COPIAR CÓDIGO</button>
+          <button type="button" class="small-button" (click)="copyLink()">COPIAR LINK</button>
+        </div>
+      </header>
+
+      <section class="lobby-section">
+        <h2>HOST</h2>
+        <div class="player-row">
+          <div>
+            <strong>{{ room.host.username }}</strong>
+            <span class="player-detail">{{ room.host.isPlaying ? 'Jogando também' : 'Apenas host' }}</span>
+          </div>
+          @if (!room.host.connected) {
+            <span class="connection-state">Reconectando...</span>
+          }
+        </div>
+      </section>
+
+      <section class="lobby-section">
+        <h2>JOGADORES</h2>
+        @for (player of room.players; track player.playerId) {
+          @if (player.isPlaying) {
+            <div class="player-row">
+              <strong>{{ player.username }}</strong>
+              @if (!player.connected) {
+                <span class="connection-state">Reconectando...</span>
+              }
+            </div>
+          }
+        } @empty {
+          <p class="muted">Aguardando jogadores...</p>
+        }
+      </section>
+
+      <p class="player-count">
+        {{ playingCount() }} {{ playingCount() === 1 ? 'jogador' : 'jogadores' }}
+      </p>
+
+      @if (rooms.sessionFor(room.roomCode)?.isHost) {
+        <button class="button button-primary" type="button" disabled>INICIAR PARTIDA</button>
+      } @else {
+        <p class="waiting-message">Aguardando o host iniciar a partida...</p>
+      }
+    } @else {
+      <p>Conectando à sala...</p>
+    }
+  </section>
+</main>

@@ -1,1 +1,42 @@
-<h1>Hello World</h1>
+<main class="page-shell">
+  <section class="page-content home-content">
+    <p class="eyebrow">MUSICAL GAME</p>
+    <h1>Escolha músicas.<br />Ouça junto.<br />Vote com seus amigos.</h1>
+
+    @if (!showCreate) {
+      <div class="button-stack">
+        <button type="button" class="button button-primary" (click)="showCreate = true">
+          CRIAR PARTIDA
+        </button>
+        <a class="button button-secondary" routerLink="/join">ENTRAR EM PARTIDA</a>
+      </div>
+    } @else {
+      <form class="form-stack" (ngSubmit)="createRoom()">
+        <h2>CRIAR PARTIDA</h2>
+        <label for="host-name">Seu nome</label>
+        <input
+          id="host-name"
+          name="username"
+          [(ngModel)]="username"
+          maxlength="32"
+          autocomplete="name"
+          placeholder="Luiz"
+        />
+        <label class="checkbox-row">
+          <input type="checkbox" name="isPlaying" [(ngModel)]="isPlaying" />
+          <span>Quero jogar também</span>
+        </label>
+        <p class="muted">
+          Se desativado, você controla a partida, mas não envia escolhas, não vota e não pontua.
+        </p>
+        @if (error) {
+          <p class="error-message">{{ error }}</p>
+        }
+        <button class="button button-primary" [disabled]="loading">
+          {{ loading ? 'CRIANDO...' : 'CRIAR SALA' }}
+        </button>
+        <button type="button" class="text-button" (click)="showCreate = false">Voltar</button>
+      </form>
+    }
+  </section>
+</main>
