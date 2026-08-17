@@ -122,6 +122,11 @@ export class RoomService {
     this.sockets.removePlayer(playerId);
   }
 
+  startGame(): void {
+    this.error.set('');
+    this.sockets.startGame();
+  }
+
   private storeResponse(response: RoomEntryResponse): PlayerSession {
     const session: PlayerSession = {
       roomCode: response.roomCode,

@@ -54,6 +54,10 @@ export class SocketService {
     this.socket?.emit('player:remove', { playerId });
   }
 
+  startGame(): void {
+    this.socket?.emit('game:start');
+  }
+
   disconnect(): void {
     this.socket?.removeAllListeners();
     this.socket?.disconnect();

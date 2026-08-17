@@ -2,7 +2,7 @@
   <section class="page-content">
     <p class="eyebrow">MUSICAL GAME</p>
 
-    @if (checking) {
+    @if (checking()) {
       <p>Conectando ao servidor...</p>
     } @else if (rooms.wasRemoved()) {
       <div class="form-stack">
@@ -12,7 +12,7 @@
           VOLTAR AO INÍCIO
         </button>
       </div>
-    } @else if (rooms.error() && !hasSession && !rooms.requiresRejoin()) {
+    } @else if (rooms.error() && !hasSession() && !rooms.requiresRejoin()) {
       <div class="form-stack">
         <h1>Sala indisponível</h1>
         <p class="error-message">{{ rooms.error() }}</p>
@@ -20,7 +20,7 @@
           VOLTAR PARA O INÍCIO
         </button>
       </div>
-    } @else if (!hasSession || rooms.requiresRejoin()) {
+    } @else if (!hasSession() || rooms.requiresRejoin()) {
       <form class="form-stack" (ngSubmit)="joinRoom()">
         <h1>ENTRAR NA SALA</h1>
         <p class="direct-room-code">{{ roomCode }}</p>
@@ -35,11 +35,11 @@
           maxlength="32"
           autocomplete="name"
         />
-        @if (joinError) {
-          <p class="error-message">{{ joinError }}</p>
+        @if (joinError()) {
+          <p class="error-message">{{ joinError() }}</p>
         }
-        <button class="button button-primary" [disabled]="joining">
-          {{ joining ? 'ENTRANDO...' : 'ENTRAR' }}
+        <button class="button button-primary" [disabled]="joining()">
+          {{ joining() ? 'ENTRANDO...' : 'ENTRAR' }}
         </button>
         <a class="text-link" routerLink="/">Voltar</a>
       </form>
@@ -118,7 +118,12 @@
       </p>
 
       @if (rooms.sessionFor(room.roomCode)?.isHost) {
-        <button class="button button-primary" type="button" disabled>INICIAR PARTIDA</button>
+        <button
+          class="button button-primary"
+          type="button"
+          [disabled]="playingCount() < minPlayersToStart"
+          (click)="startGame()"
+        >INICIAR PARTIDA</button>
       } @else {
         <p class="waiting-message">Aguardando o host iniciar a partida...</p>
       }
