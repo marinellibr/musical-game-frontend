@@ -181,12 +181,17 @@ select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-ra
 .choice-preview, .submitted-choice { padding:20px; border:1px solid #000; text-align:center; }
 .choice-preview img { width:min(100%,240px); aspect-ratio:16/9; object-fit:cover; }
 .host-only-choosing { display:grid; justify-items:center; gap:18px; font-size:1.25rem; font-weight:700; }
+.submission-progress { margin:0; font-size:clamp(1.25rem,4vw,2rem); }
+.host-leaderboard { width:100%; max-width:520px; text-align:left; }
+.host-leaderboard ol { display:grid; gap:10px; margin:0; padding:0; list-style:none; }
+.host-leaderboard li { display:flex; justify-content:space-between; gap:16px; padding-bottom:8px; border-bottom:1px solid #bbb; }
 .room-qr { display:grid; justify-items:center; gap:8px; }
 .room-qr img { width:min(70vw,300px); height:auto; }
 .room-qr strong { font-size:2rem; letter-spacing:.12em; }
 .room-qr span { color:#666; font-size:.8rem; }
 .waiting-next-content { text-align:center; }
 .waiting-timer { font-size:2.5rem; font-weight:800; font-variant-numeric:tabular-nums; }
+@media (min-width:800px) { .host-only-choosing .room-qr img { width:190px; } }
 .round-label { margin-bottom: 34px; font-size: .8rem; font-weight: 700; letter-spacing: .14em; }
 .theme-label { color: #666; }
 .theme-title {

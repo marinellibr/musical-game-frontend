@@ -42,7 +42,10 @@ export interface PublicGameState {
   roundEndsAt: number | null;
   submittedCount: number;
   waitingNextRoundCount: number;
+  leaderboard: LeaderboardEntry[];
 }
+
+export interface LeaderboardEntry { playerId: string; username: string; score: number; position: number; }
 
 export interface ThemeReactionState {
   themeId?: string;
