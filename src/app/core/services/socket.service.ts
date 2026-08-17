@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
-import { GroupVote, PlayerSession, PublicListeningState, RoomState, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
+import { GroupVote, PlayerSession, PublicListeningState, RoomState, RoundResultView, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
 
 export interface RoomSocketError {
   code: string;
@@ -20,6 +20,7 @@ export class SocketService {
   private readonly listeningStateSubject = new BehaviorSubject<PublicListeningState | null>(null);
   private readonly votingStateSubject = new BehaviorSubject<VotingView | null>(null);
   private readonly submissionStatusSubject = new BehaviorSubject<boolean>(false);
+  private readonly roundResultSubject = new BehaviorSubject<RoundResultView | null>(null);
 
   readonly roomState$ = this.roomStateSubject.asObservable();
   readonly error$ = this.errorSubject.asObservable();
@@ -28,6 +29,7 @@ export class SocketService {
   readonly listeningState$ = this.listeningStateSubject.asObservable();
   readonly votingState$ = this.votingStateSubject.asObservable();
   readonly submissionStatus$ = this.submissionStatusSubject.asObservable();
+  readonly roundResult$ = this.roundResultSubject.asObservable();
 
   connect(session: PlayerSession): void {
     const key = `${session.roomCode}:${session.playerId}`;
@@ -56,6 +58,7 @@ export class SocketService {
     this.socket.on('listening:state', (state: PublicListeningState) => this.listeningStateSubject.next(state));
     this.socket.on('voting:state', (state: VotingView) => this.votingStateSubject.next(state));
     this.socket.on('submission:status', (state: { submitted: boolean }) => this.submissionStatusSubject.next(state.submitted));
+    this.socket.on('round:result', (state: RoundResultView) => this.roundResultSubject.next(state));
     this.socket.on('connect_error', () =>
       this.errorSubject.next({
         code: 'SERVER_UNAVAILABLE',
@@ -89,6 +92,8 @@ export class SocketService {
   moveListening(direction: 'next' | 'previous'): void { this.socket?.emit(`listening:${direction}`); }
   startVoting(): void { this.socket?.emit('voting:start'); }
   submitVote(vote: GroupVote): void { this.socket?.emit('vote:submit', vote); }
+  advanceResult(): void { this.socket?.emit('result:next'); }
+  nextRound(): void { this.socket?.emit('round:next'); }
 
   disconnect(): void {
     this.socket?.removeAllListeners();
@@ -100,5 +105,6 @@ export class SocketService {
     this.listeningStateSubject.next(null);
     this.votingStateSubject.next(null);
     this.submissionStatusSubject.next(false);
+    this.roundResultSubject.next(null);
   }
 }

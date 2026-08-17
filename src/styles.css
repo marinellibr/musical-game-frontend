@@ -246,6 +246,17 @@ select { min-height: 50px; padding: 12px 14px; border: 1px solid #000; border-ra
 .vote-actions button { width: 48px; height: 48px; border: 1px solid #000; background: #fff; border-radius: 5px; font-size: 1.3rem; }
 .vote-actions button.active { background: #000; filter: grayscale(1) invert(1); }
 .vote-progress { margin-top: 36px; padding-top: 24px; border-top: 1px solid #000; }
+.leaderboard { width:100%; max-width:620px; text-align:left; }
+.leaderboard ol { display:grid; gap:8px; margin:0; padding:0; list-style:none; }
+.leaderboard li { display:grid; grid-template-columns:1fr auto; gap:2px 16px; padding:10px 0; border-bottom:1px solid #bbb; }
+.leaderboard li small { grid-column:1 / -1; color:#666; }
+.round-result-content { display:grid; gap:24px; }
+.round-ranking { display:grid; gap:12px; }
+.result-entry { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:4px 16px; padding:16px; border:1px solid #aaa; }
+.result-entry h2, .result-entry p { margin:0; }
+.result-authors { grid-column:2; color:#555; }
+.result-position { font-size:1.5rem; grid-row:1 / span 2; }
+.vote-balance { font-size:1.4rem; }
 @media (min-width: 800px) {
   .theme-page .page-content { width: min(100%, 1000px); }
   .theme-host-actions { width: min(100%, 480px); margin-inline: auto; }

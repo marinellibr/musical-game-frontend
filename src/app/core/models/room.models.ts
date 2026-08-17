@@ -17,7 +17,7 @@ export interface RoomState {
 }
 
 export type ThemeReaction = 'like' | 'dislike';
-export type GamePhase = 'THEME_SELECTION' | 'CHOOSING' | 'LISTENING' | 'VOTING';
+export type GamePhase = 'THEME_SELECTION' | 'CHOOSING' | 'LISTENING' | 'VOTING' | 'ROUND_RESULTS';
 export type MediaSource = 'SPOTIFY' | 'YOUTUBE';
 
 export interface GameTheme {
@@ -45,7 +45,7 @@ export interface PublicGameState {
   leaderboard: LeaderboardEntry[];
 }
 
-export interface LeaderboardEntry { playerId: string; username: string; score: number; position: number; }
+export interface LeaderboardEntry { playerId: string; username: string; totalLikes: number; totalDislikes: number; voteBalance: number; position: number; }
 
 export interface ThemeReactionState {
   themeId?: string;
@@ -89,11 +89,33 @@ export interface VotingView {
   canVote: boolean;
   votedPlayers: string[];
   eligiblePlayersCount: number;
+  votingStartedAt: number;
+  votingEndsAt: number;
 }
 
 export interface GroupVote {
   likedGroupId: string;
   dislikedGroupId: string;
+}
+
+export type ResultRevealStage = 'AUTHORS' | 'VOTES' | 'RANKING';
+export interface RoundRankingEntry {
+  groupId: string;
+  media: PublicMedia;
+  authors: Array<{ playerId: string; username: string }>;
+  likes: number;
+  dislikes: number;
+  voteBalance: number;
+  position: number;
+}
+export interface RoundResultView {
+  round: number;
+  totalRounds: number;
+  theme: GameTheme;
+  revealStage: ResultRevealStage;
+  ranking: RoundRankingEntry[];
+  leaderboard: LeaderboardEntry[];
+  isLastRound: boolean;
 }
 
 export interface SpotifyTrack {

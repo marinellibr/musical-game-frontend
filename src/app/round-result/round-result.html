@@ -1,1 +1,23 @@
-<p>round-result works!</p>
+<main class="page-shell"><section class="page-content round-result-content">
+  @if (rooms.roundResult(); as result) {
+    <p class="eyebrow">RESULTADO DA RODADA {{ result.round }} DE {{ result.totalRounds }}</p>
+    <app-theme-card [theme]="result.theme" />
+    @if (result.revealStage === 'RANKING') { <app-leaderboard title="PLACAR GERAL" [entries]="result.leaderboard" /> }
+    <section class="round-ranking">
+      @for (entry of result.ranking; track entry.groupId) {
+        <article class="result-entry">
+          @if (result.revealStage === 'RANKING') { <b class="result-position">{{ entry.position }}º</b> }
+          <div><h2>{{ entry.media.title }}</h2>@if (entry.media.artist) { <p>{{ entry.media.artist }}</p> }</div>
+          <p class="result-authors">@for (author of entry.authors; track author.playerId; let last = $last) { {{ author.username }}{{ last ? '' : ', ' }} }</p>
+          @if (result.revealStage !== 'AUTHORS') { <strong class="vote-balance">{{ entry.voteBalance > 0 ? '+' : '' }}{{ entry.voteBalance }}</strong><span>👍 {{ entry.likes }} · 👎 {{ entry.dislikes }}</span> }
+        </article>
+      }
+    </section>
+    @if (loading()) { <app-loader [label]="result.revealStage === 'RANKING' ? 'Preparando próxima rodada...' : 'Revelando resultado...'" /> }
+    @else if (rooms.sessionFor(roomCode)?.isHost) {
+      @if (result.revealStage === 'AUTHORS') { <button class="button button-primary" type="button" (click)="advance()">VER VOTOS</button> }
+      @else if (result.revealStage === 'VOTES') { <button class="button button-primary" type="button" (click)="advance()">VER RANKING</button> }
+      @else { <button class="button button-primary" type="button" (click)="nextRound()">{{ result.isLastRound ? 'VER RESULTADO FINAL' : 'PRÓXIMA RODADA' }}</button> }
+    } @else { <p class="waiting-message">Aguardando o host...</p> }
+  } @else { <app-loader label="Carregando resultado..." /> }
+</section></main>

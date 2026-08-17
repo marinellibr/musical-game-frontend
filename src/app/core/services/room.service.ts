@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { GroupVote, PlayerSession, PublicListeningState, RoomEntryResponse, RoomState, SubmissionInput, ThemeReaction, VotingView } from '../models/room.models';
+import { GroupVote, PlayerSession, PublicListeningState, RoomEntryResponse, RoomState, RoundResultView, SubmissionInput, ThemeReaction, VotingView } from '../models/room.models';
 import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
 import { SocketService } from './socket.service';
@@ -20,6 +20,7 @@ export class RoomService {
   readonly listeningState = signal<PublicListeningState | null>(null);
   readonly votingView = signal<VotingView | null>(null);
   readonly hasSubmitted = signal(false);
+  readonly roundResult = signal<RoundResultView | null>(null);
 
   constructor() {
     this.sockets.roomState$.subscribe((state) => {
@@ -71,6 +72,7 @@ export class RoomService {
     this.sockets.listeningState$.subscribe((state) => this.listeningState.set(state));
     this.sockets.votingState$.subscribe((state) => this.votingView.set(state));
     this.sockets.submissionStatus$.subscribe((submitted) => this.hasSubmitted.set(submitted));
+    this.sockets.roundResult$.subscribe((result) => this.roundResult.set(result));
   }
 
   async create(username: string, isPlaying: boolean): Promise<PlayerSession> {
@@ -156,6 +158,8 @@ export class RoomService {
   moveListening(direction: 'next' | 'previous'): void { this.error.set(''); this.sockets.moveListening(direction); }
   startVoting(): void { this.error.set(''); this.sockets.startVoting(); }
   submitVote(vote: GroupVote): void { this.error.set(''); this.sockets.submitVote(vote); }
+  advanceResult(): void { this.error.set(''); this.sockets.advanceResult(); }
+  nextRound(): void { this.error.set(''); this.sockets.nextRound(); }
 
   private storeResponse(response: RoomEntryResponse): PlayerSession {
     const session: PlayerSession = {
