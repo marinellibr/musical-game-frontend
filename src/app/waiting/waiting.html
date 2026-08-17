@@ -1,4 +1,4 @@
 <main class="page-shell"><section class="page-content waiting-next-content">
   @if (rooms.state()?.game; as game) { <p class="eyebrow">VOCÊ ENTROU NA SALA</p><h1>Você entra na próxima rodada</h1><p class="muted">Uma rodada já está em andamento.</p><app-theme-card [theme]="game.currentTheme" [showExample]="true" />@if (time(); as remaining) { <div class="waiting-timer">{{ remaining }}</div> }<p class="waiting-message">Aguardando a próxima rodada...</p> }
-  @else { <app-loader label="Resolvendo estado da sala..." /> }
+  @else { <app-skeleton variant="theme" label="Carregando rodada atual" /><app-loader compact label="Resolvendo estado da sala..." /> }
 </section></main>

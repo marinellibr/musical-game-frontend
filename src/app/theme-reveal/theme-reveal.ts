@@ -4,10 +4,11 @@ import { ThemeReaction } from '../core/models/room.models';
 import { RoomService } from '../core/services/room.service';
 import { Loader } from '../shared/loader/loader';
 import { ThemeCard } from '../shared/theme-card/theme-card';
+import { Skeleton } from '../shared/skeleton/skeleton';
 
 @Component({
   selector: 'app-theme-reveal',
-  imports: [Loader, ThemeCard],
+  imports: [Loader, Skeleton, ThemeCard],
   templateUrl: './theme-reveal.html',
 })
 export class ThemeReveal implements OnInit {

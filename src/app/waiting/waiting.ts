@@ -3,8 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
 import { Loader } from '../shared/loader/loader';
 import { ThemeCard } from '../shared/theme-card/theme-card';
+import { Skeleton } from '../shared/skeleton/skeleton';
 
-@Component({ selector: 'app-waiting', imports: [Loader, ThemeCard], templateUrl: './waiting.html' })
+@Component({ selector: 'app-waiting', imports: [Loader, Skeleton, ThemeCard], templateUrl: './waiting.html' })
 export class Waiting implements OnInit, OnDestroy {
   readonly rooms = inject(RoomService); private readonly route = inject(ActivatedRoute); private readonly router = inject(Router); readonly now = signal(Date.now()); roomCode = ''; private timer?: ReturnType<typeof setInterval>;
   constructor() { effect(() => { const state = this.rooms.state(); const session = this.rooms.sessionFor(state?.roomCode || this.roomCode); const player = state && session ? [state.host, ...state.players].find((item) => item.playerId === session.playerId) : null; if (state && player?.participationStatus === 'ACTIVE') void this.router.navigate(['/room', state.roomCode, state.status === 'THEME_REVEAL' ? 'theme' : '']); }); }

@@ -3,12 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
 import { RoomQr } from '../shared/room-qr/room-qr';
+import { Loader } from '../shared/loader/loader';
+import { Skeleton } from '../shared/skeleton/skeleton';
 
 export const MIN_PLAYERS_TO_START = 2;
 
 @Component({
   selector: 'app-lobby',
-  imports: [FormsModule, RouterLink, RoomQr],
+  imports: [FormsModule, Loader, RouterLink, RoomQr, Skeleton],
   templateUrl: './lobby.html',
 })
 export class Lobby implements OnInit, OnDestroy {
@@ -24,6 +26,8 @@ export class Lobby implements OnInit, OnDestroy {
   readonly hasSession = signal(false);
   readonly minPlayersToStart = MIN_PLAYERS_TO_START;
   removingPlayerId: string | null = null;
+  readonly removalPendingId = signal<string | null>(null);
+  readonly startingGame = signal(false);
 
   constructor() {
     effect(() => {
@@ -38,8 +42,12 @@ export class Lobby implements OnInit, OnDestroy {
         return;
       }
       if (state && state.roomCode === routeRoomCode && state.status !== 'LOBBY') {
+        this.startingGame.set(false);
         void this.router.navigate(['/room', state.roomCode, 'theme']);
       }
+      const pendingRemoval = this.removalPendingId();
+      if (pendingRemoval && state && !state.players.some((player) => player.playerId === pendingRemoval)) this.removalPendingId.set(null);
+      if (this.rooms.error()) { this.startingGame.set(false); this.removalPendingId.set(null); }
     });
   }
 
@@ -96,12 +104,15 @@ export class Lobby implements OnInit, OnDestroy {
   }
 
   removePlayer(playerId: string): void {
+    if (this.removalPendingId()) return;
+    this.removalPendingId.set(playerId);
     this.rooms.removePlayer(playerId);
     this.removingPlayerId = null;
   }
 
   startGame(): void {
     if (this.playingCount() >= MIN_PLAYERS_TO_START) {
+      this.startingGame.set(true);
       this.rooms.startGame();
     }
   }

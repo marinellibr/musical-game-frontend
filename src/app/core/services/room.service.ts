@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { GroupVote, PlayerSession, PublicListeningState, RoomEntryResponse, RoomState, RoundResultView, SubmissionInput, ThemeReaction, VotingView } from '../models/room.models';
+import { GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomEntryResponse, RoomState, RoundResultView, SubmissionInput, ThemeReaction, VotingView } from '../models/room.models';
 import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
-import { SocketService } from './socket.service';
+import { SocketConnectionState, SocketService } from './socket.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
@@ -20,11 +20,20 @@ export class RoomService {
   readonly listeningState = signal<PublicListeningState | null>(null);
   readonly votingView = signal<VotingView | null>(null);
   readonly hasSubmitted = signal(false);
+  readonly submittedMedia = signal<PublicMedia | null>(null);
   readonly roundResult = signal<RoundResultView | null>(null);
+  readonly connectionState = signal<SocketConnectionState>('idle');
+  private submissionRoundKey = '';
 
   constructor() {
     this.sockets.roomState$.subscribe((state) => {
       if (state) {
+        const nextRoundKey = `${state.roomCode}:${state.game?.round ?? 'lobby'}`;
+        if (nextRoundKey !== this.submissionRoundKey) {
+          this.submissionRoundKey = nextRoundKey;
+          this.hasSubmitted.set(false);
+          this.submittedMedia.set(null);
+        }
         this.state.set(state);
         this.error.set('');
       }
@@ -71,8 +80,9 @@ export class RoomService {
     });
     this.sockets.listeningState$.subscribe((state) => this.listeningState.set(state));
     this.sockets.votingState$.subscribe((state) => this.votingView.set(state));
-    this.sockets.submissionStatus$.subscribe((submitted) => this.hasSubmitted.set(submitted));
+    this.sockets.submissionStatus$.subscribe((status) => { this.hasSubmitted.set(status.submitted); this.submittedMedia.set(status.media); });
     this.sockets.roundResult$.subscribe((result) => this.roundResult.set(result));
+    this.sockets.connectionState$.subscribe((state) => this.connectionState.set(state));
   }
 
   async create(username: string, isPlaying: boolean): Promise<PlayerSession> {
@@ -127,7 +137,12 @@ export class RoomService {
     this.state.set(null);
     this.requiresRejoin.set(false);
     this.wasRemoved.set(false);
+    this.submissionRoundKey = '';
+    this.hasSubmitted.set(false);
+    this.submittedMedia.set(null);
   }
+
+  resetSubmissionState(): void { this.hasSubmitted.set(false); this.submittedMedia.set(null); }
 
   removePlayer(playerId: string): void {
     this.error.set('');

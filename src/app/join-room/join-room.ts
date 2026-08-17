@@ -2,10 +2,11 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
+import { Loader } from '../shared/loader/loader';
 
 @Component({
   selector: 'app-join-room',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, Loader, RouterLink],
   templateUrl: './join-room.html',
 })
 export class JoinRoom {

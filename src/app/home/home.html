@@ -29,13 +29,11 @@
         <p class="muted">
           Se desativado, você controla a partida, mas não envia escolhas, não vota e não pontua.
         </p>
-        @if (error) {
-          <p class="error-message">{{ error }}</p>
-        }
-        <button class="button button-primary" [disabled]="loading">
-          {{ loading ? 'CRIANDO...' : 'CRIAR SALA' }}
+        <p class="error-message error-slot" aria-live="polite">{{ error }}</p>
+        <button class="button button-primary async-button" [disabled]="loading">
+          @if (loading) { <app-loader compact label="CRIANDO..." /> } @else { CRIAR SALA }
         </button>
-        <button type="button" class="text-button" (click)="showCreate = false">Voltar</button>
+        <button type="button" class="text-button" [disabled]="loading" (click)="showCreate = false">Voltar</button>
       </form>
     }
   </section>

@@ -35,6 +35,7 @@ export class Voting implements OnInit, OnDestroy {
   remainingSeconds(): number { return Math.max(0, Math.ceil(((this.rooms.votingView()?.votingEndsAt || 0) - this.now()) / 1000)); }
   formattedTime(): string { const seconds = this.remainingSeconds(); return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`; }
   select(groupId: string, reaction: 'like' | 'dislike'): void {
+    if (this.submitting() || this.remainingSeconds() === 0 || this.rooms.votingView()?.hasVoted) return;
     if (reaction === 'like') { this.likedGroupId.set(this.likedGroupId() === groupId ? null : groupId); if (this.dislikedGroupId() === groupId) this.dislikedGroupId.set(null); }
     else { this.dislikedGroupId.set(this.dislikedGroupId() === groupId ? null : groupId); if (this.likedGroupId() === groupId) this.likedGroupId.set(null); }
   }

@@ -1,7 +1,7 @@
 <main class="page-shell"><section class="page-content voting-content">
   <p class="eyebrow">VOTAÇÃO</p>
   @if (rooms.votingView(); as voting) {
-    <div class="choosing-timer" [class.expired]="remainingSeconds() === 0">{{ formattedTime() }}</div>
+    <div class="choosing-timer sticky-timer" [class.expired]="remainingSeconds() === 0">{{ formattedTime() }}</div>
     @if (remainingSeconds() === 0) { <app-loader label="Calculando resultado..." /> }
     @if (voting.ownSubmission; as own) { <section class="own-submission"><h2>SUA ESCOLHA</h2><strong>{{ own.title }}</strong>@if (own.artist) { <span>{{ own.artist }}</span> }<small>Indisponível para voto</small></section> }
     @if (!voting.canVote) { <h1>Aguardando os jogadores votarem...</h1> }
@@ -11,7 +11,7 @@
       <div class="voting-groups">@for (group of voting.groups; track group.groupId) {
         <article class="voting-group"><div><strong>{{ group.media.title }}</strong>@if (group.media.artist) { <span>{{ group.media.artist }}</span> }</div><div class="vote-actions"><button type="button" [class.active]="likedGroupId() === group.groupId" (click)="select(group.groupId, 'like')">👍</button><button type="button" [class.active]="dislikedGroupId() === group.groupId" (click)="select(group.groupId, 'dislike')">👎</button></div></article>
       }</div>
-      @if (submitting()) { <app-loader label="Enviando voto..." /> } @else { <button class="button button-primary" type="button" [disabled]="remainingSeconds() === 0 || !likedGroupId() || !dislikedGroupId()" (click)="submit()">CONFIRMAR VOTO</button> }
+      <button class="button button-primary async-button sticky-action" type="button" [disabled]="submitting() || remainingSeconds() === 0 || !likedGroupId() || !dislikedGroupId()" (click)="submit()">@if (submitting()) { <app-loader compact label="CONFIRMANDO..." /> } @else { CONFIRMAR VOTO }</button>
     }
     @if (rooms.sessionFor(roomCode)?.isHost) { <section class="vote-progress"><h2>PROGRESSO</h2><p>{{ voting.votedPlayers.length }} de {{ voting.eligiblePlayersCount }} jogadores votaram</p>@if (rooms.state()?.host?.isPlaying) { <div class="player-row"><span>{{ rooms.state()?.host?.username }}</span><strong>{{ voting.votedPlayers.includes(rooms.state()!.host.playerId) ? '✓' : '...' }}</strong></div> } @for (player of rooms.state()?.players || []; track player.playerId) { @if (player.isPlaying) { <div class="player-row"><span>{{ player.username }}</span><strong>{{ voting.votedPlayers.includes(player.playerId) ? '✓' : '...' }}</strong></div> } }</section> }
   } @else { <app-loader label="Carregando votação..." /> }

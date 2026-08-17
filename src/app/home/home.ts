@@ -3,10 +3,11 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { RoomService } from '../core/services/room.service';
+import { Loader } from '../shared/loader/loader';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, Loader, RouterLink],
   templateUrl: './home.html',
 })
 export class Home {

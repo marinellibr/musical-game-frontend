@@ -1,8 +1,6 @@
 <main class="page-shell theme-page">
   <section class="page-content theme-content">
-    @if (swappingTheme()) {
-      <app-loader label="Trocando tema..." />
-    } @else if (rooms.state()?.game; as game) {
+    @if (rooms.state()?.game; as game) {
       <p class="round-label">RODADA {{ game.round }} / {{ game.totalRounds }}</p>
       <p class="eyebrow theme-label">TEMA</p>
       <app-theme-card [theme]="game.currentTheme" />
@@ -37,11 +35,11 @@
 
       @if (rooms.sessionFor(roomCode)?.isHost) {
         <div class="theme-host-actions">
-          <button class="button button-secondary" type="button" [disabled]="actionPending()" (click)="swapTheme()">
-            TROCAR TEMA
+          <button class="button button-secondary async-button" type="button" [disabled]="actionPending()" (click)="swapTheme()">
+            @if (swappingTheme()) { <app-loader compact label="TROCANDO..." /> } @else { TROCAR TEMA }
           </button>
-          <button class="button button-primary" type="button" [disabled]="actionPending()" (click)="startRound()">
-            INICIAR RODADA
+          <button class="button button-primary async-button" type="button" [disabled]="actionPending()" (click)="startRound()">
+            @if (actionPending() && !swappingTheme()) { <app-loader compact label="INICIANDO..." /> } @else { INICIAR RODADA }
           </button>
         </div>
       } @else {
@@ -49,7 +47,8 @@
       }
     } @else {
       <div class="theme-loader" role="status" aria-live="polite">
-        <app-loader label="Carregando tema..." />
+        <app-skeleton variant="theme" label="Carregando tema" />
+        <app-loader compact label="Carregando tema..." />
       </div>
     }
   </section>

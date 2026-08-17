@@ -1,1 +1,1 @@
-<p>game-result works!</p>
+<main class="page-shell"><section class="page-content round-result-content"><p class="eyebrow">FIM DE JOGO</p><h1>Resultado final</h1>@if (rooms.state()?.game; as game) { <app-leaderboard title="PLACAR FINAL" [entries]="game.leaderboard" /> } @else { <app-leaderboard title="PLACAR FINAL" [entries]="[]" [loading]="true" /><app-loader compact label="Carregando resultado final..." /> }</section></main>

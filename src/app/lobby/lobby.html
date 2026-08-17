@@ -3,7 +3,7 @@
     <p class="eyebrow">MUSICAL GAME</p>
 
     @if (checking()) {
-      <p>Conectando ao servidor...</p>
+      <app-loader label="Conectando ao servidor..." />
     } @else if (rooms.wasRemoved()) {
       <div class="form-stack">
         <h1>Você saiu da sala</h1>
@@ -38,8 +38,8 @@
         @if (joinError()) {
           <p class="error-message">{{ joinError() }}</p>
         }
-        <button class="button button-primary" [disabled]="joining()">
-          {{ joining() ? 'ENTRANDO...' : 'ENTRAR' }}
+        <button class="button button-primary async-button" [disabled]="joining()">
+          @if (joining()) { <app-loader compact label="ENTRANDO..." /> } @else { ENTRAR }
         </button>
         <a class="text-link" routerLink="/">Voltar</a>
       </form>
@@ -67,7 +67,7 @@
         }
       </header>
 
-      <section class="lobby-section">
+      <section class="lobby-section players-section">
         <h2>HOST</h2>
         <div class="player-row">
           <div>
@@ -98,8 +98,8 @@
                     <button type="button" class="text-action" (click)="cancelRemove()">
                       CANCELAR
                     </button>
-                    <button type="button" class="text-action" (click)="removePlayer(player.playerId)">
-                      REMOVER
+                    <button type="button" class="text-action" [disabled]="removalPendingId() === player.playerId" (click)="removePlayer(player.playerId)">
+                      {{ removalPendingId() === player.playerId ? 'REMOVENDO...' : 'REMOVER' }}
                     </button>
                   </div>
                 } @else {
@@ -126,14 +126,14 @@
         <button
           class="button button-primary"
           type="button"
-          [disabled]="playingCount() < minPlayersToStart"
+          [disabled]="startingGame() || playingCount() < minPlayersToStart"
           (click)="startGame()"
-        >INICIAR PARTIDA</button>
+        >@if (startingGame()) { <app-loader compact label="INICIANDO..." /> } @else { INICIAR PARTIDA }</button>
       } @else {
         <p class="waiting-message">Aguardando o host iniciar a partida...</p>
       }
     } @else {
-      <p>Conectando à sala...</p>
+      <app-skeleton variant="players" [lines]="4" label="Carregando jogadores" />
     }
   </section>
 </main>

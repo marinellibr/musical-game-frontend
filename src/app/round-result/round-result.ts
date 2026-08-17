@@ -4,10 +4,11 @@ import { RoomService } from '../core/services/room.service';
 import { Leaderboard } from '../shared/leaderboard/leaderboard';
 import { Loader } from '../shared/loader/loader';
 import { ThemeCard } from '../shared/theme-card/theme-card';
+import { Skeleton } from '../shared/skeleton/skeleton';
 
 @Component({
   selector: 'app-round-result',
-  imports: [Leaderboard, Loader, ThemeCard],
+  imports: [Leaderboard, Loader, Skeleton, ThemeCard],
   templateUrl: './round-result.html',
 })
 export class RoundResult implements OnInit {

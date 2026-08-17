@@ -23,11 +23,9 @@
         autocomplete="name"
         placeholder="Bruno"
       />
-      @if (error) {
-        <p class="error-message">{{ error }}</p>
-      }
-      <button class="button button-primary" [disabled]="loading">
-        {{ loading ? 'ENTRANDO...' : 'ENTRAR' }}
+      <p class="error-message error-slot" aria-live="polite">{{ error }}</p>
+      <button class="button button-primary async-button" [disabled]="loading">
+        @if (loading) { <app-loader compact label="ENTRANDO..." /> } @else { ENTRAR }
       </button>
       <a class="text-link" routerLink="/">Voltar</a>
     </form>

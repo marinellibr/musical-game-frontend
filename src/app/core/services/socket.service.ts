@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
-import { GroupVote, PlayerSession, PublicListeningState, RoomState, RoundResultView, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
+import { GroupVote, PlayerSession, PublicListeningState, PublicMedia, RoomState, RoundResultView, SubmissionInput, ThemeReaction, ThemeReactionState, VotingView } from '../models/room.models';
 
 export interface RoomSocketError {
   code: string;
   message: string;
 }
+export type SocketConnectionState = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
@@ -19,8 +20,9 @@ export class SocketService {
   private readonly themeReactionSubject = new BehaviorSubject<ThemeReactionState | null>(null);
   private readonly listeningStateSubject = new BehaviorSubject<PublicListeningState | null>(null);
   private readonly votingStateSubject = new BehaviorSubject<VotingView | null>(null);
-  private readonly submissionStatusSubject = new BehaviorSubject<boolean>(false);
+  private readonly submissionStatusSubject = new BehaviorSubject<{ submitted: boolean; media: PublicMedia | null }>({ submitted: false, media: null });
   private readonly roundResultSubject = new BehaviorSubject<RoundResultView | null>(null);
+  private readonly connectionStateSubject = new BehaviorSubject<SocketConnectionState>('idle');
 
   readonly roomState$ = this.roomStateSubject.asObservable();
   readonly error$ = this.errorSubject.asObservable();
@@ -30,6 +32,7 @@ export class SocketService {
   readonly votingState$ = this.votingStateSubject.asObservable();
   readonly submissionStatus$ = this.submissionStatusSubject.asObservable();
   readonly roundResult$ = this.roundResultSubject.asObservable();
+  readonly connectionState$ = this.connectionStateSubject.asObservable();
 
   connect(session: PlayerSession): void {
     const key = `${session.roomCode}:${session.playerId}`;
@@ -38,6 +41,7 @@ export class SocketService {
       return;
     }
     this.disconnect();
+    this.connectionStateSubject.next('connecting');
     this.sessionKey = key;
     this.socket = io(environment.apiUrl, {
       auth: {
@@ -50,6 +54,9 @@ export class SocketService {
       reconnectionDelayMax: 5_000,
     });
     this.socket.on('room:state', (state: RoomState) => this.roomStateSubject.next(state));
+    this.socket.on('connect', () => this.connectionStateSubject.next('connected'));
+    this.socket.io.on('reconnect_attempt', () => this.connectionStateSubject.next('reconnecting'));
+    this.socket.on('disconnect', (reason) => this.connectionStateSubject.next(reason === 'io client disconnect' ? 'idle' : 'disconnected'));
     this.socket.on('room:error', (error: RoomSocketError) => this.errorSubject.next(error));
     this.socket.on('player:removed', () => this.removedSubject.next());
     this.socket.on('theme:reaction', (state: ThemeReactionState) =>
@@ -57,7 +64,7 @@ export class SocketService {
     );
     this.socket.on('listening:state', (state: PublicListeningState) => this.listeningStateSubject.next(state));
     this.socket.on('voting:state', (state: VotingView) => this.votingStateSubject.next(state));
-    this.socket.on('submission:status', (state: { submitted: boolean }) => this.submissionStatusSubject.next(state.submitted));
+    this.socket.on('submission:status', (state: { submitted: boolean; media?: PublicMedia | null }) => this.submissionStatusSubject.next({ submitted: state.submitted, media: state.media || null }));
     this.socket.on('round:result', (state: RoundResultView) => this.roundResultSubject.next(state));
     this.socket.on('connect_error', () =>
       this.errorSubject.next({
@@ -104,7 +111,8 @@ export class SocketService {
     this.themeReactionSubject.next(null);
     this.listeningStateSubject.next(null);
     this.votingStateSubject.next(null);
-    this.submissionStatusSubject.next(false);
+    this.submissionStatusSubject.next({ submitted: false, media: null });
     this.roundResultSubject.next(null);
+    this.connectionStateSubject.next('idle');
   }
 }

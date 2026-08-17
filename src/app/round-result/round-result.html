@@ -13,11 +13,10 @@
         </article>
       }
     </section>
-    @if (loading()) { <app-loader [label]="result.revealStage === 'RANKING' ? 'Preparando próxima rodada...' : 'Revelando resultado...'" /> }
-    @else if (rooms.sessionFor(roomCode)?.isHost) {
-      @if (result.revealStage === 'AUTHORS') { <button class="button button-primary" type="button" (click)="advance()">VER VOTOS</button> }
-      @else if (result.revealStage === 'VOTES') { <button class="button button-primary" type="button" (click)="advance()">VER RANKING</button> }
-      @else { <button class="button button-primary" type="button" (click)="nextRound()">{{ result.isLastRound ? 'VER RESULTADO FINAL' : 'PRÓXIMA RODADA' }}</button> }
+    @if (rooms.sessionFor(roomCode)?.isHost) {
+      <div class="result-primary-action">@if (result.revealStage === 'AUTHORS') { <button class="button button-primary async-button" type="button" [disabled]="loading()" (click)="advance()">@if (loading()) { <app-loader compact label="REVELANDO..." /> } @else { VER VOTOS }</button> }
+      @else if (result.revealStage === 'VOTES') { <button class="button button-primary async-button" type="button" [disabled]="loading()" (click)="advance()">@if (loading()) { <app-loader compact label="REVELANDO..." /> } @else { VER RANKING }</button> }
+      @else { <button class="button button-primary async-button" type="button" [disabled]="loading()" (click)="nextRound()">@if (loading()) { <app-loader compact label="PREPARANDO..." /> } @else { <span>{{ result.isLastRound ? 'VER RESULTADO FINAL' : 'PRÓXIMA RODADA' }}</span> }</button> }</div>
     } @else { <p class="waiting-message">Aguardando o host...</p> }
-  } @else { <app-loader label="Carregando resultado..." /> }
+  } @else { <p class="eyebrow">RESULTADO DA RODADA</p><app-skeleton variant="theme" label="Carregando tema" /><app-leaderboard [entries]="[]" [loading]="true" title="PLACAR GERAL" /><app-skeleton variant="results" [lines]="3" label="Carregando resultados" /><app-loader compact label="Carregando resultado..." /> }
 </section></main>
