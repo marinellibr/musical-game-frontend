@@ -1,1 +1,54 @@
-<p>theme-reveal works!</p>
+<main class="page-shell theme-page">
+  <section class="page-content theme-content">
+    @if (rooms.state()?.game; as game) {
+      <p class="round-label">RODADA {{ game.round }} / {{ game.totalRounds }}</p>
+      <p class="eyebrow theme-label">TEMA</p>
+      <h1 class="theme-title" [attr.data-theme-id]="game.currentTheme.id">
+        {{ game.currentTheme.title }}
+      </h1>
+
+      <div class="reaction-counts" aria-live="polite">
+        <span>👍 {{ game.likes }}</span>
+        <span>👎 {{ game.dislikes }}</span>
+      </div>
+      <p class="muted reaction-progress">
+        {{ game.reactedPlayers }} / {{ game.playersCount }} jogadores reagiram
+      </p>
+
+      <div class="reaction-controls">
+        <p>O que você achou?</p>
+        <div class="reaction-buttons">
+          <button
+            type="button"
+            class="reaction-button"
+            [class.active]="rooms.myThemeReaction() === 'like'"
+            (click)="react('like')"
+            aria-label="Curtir tema"
+          >👍</button>
+          <button
+            type="button"
+            class="reaction-button"
+            [class.active]="rooms.myThemeReaction() === 'dislike'"
+            (click)="react('dislike')"
+            aria-label="Não curtir tema"
+          >👎</button>
+        </div>
+      </div>
+
+      @if (rooms.sessionFor(roomCode)?.isHost) {
+        <div class="theme-host-actions">
+          <button class="button button-secondary" type="button" [disabled]="actionPending()" (click)="swapTheme()">
+            TROCAR TEMA
+          </button>
+          <button class="button button-primary" type="button" [disabled]="actionPending()" (click)="startRound()">
+            INICIAR RODADA
+          </button>
+        </div>
+      } @else {
+        <p class="waiting-message">Aguardando o host iniciar...</p>
+      }
+    } @else {
+      <p>Sincronizando tema...</p>
+    }
+  </section>
+</main>

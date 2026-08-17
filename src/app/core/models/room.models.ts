@@ -11,6 +11,33 @@ export interface RoomState {
   status: string;
   host: PublicPlayer;
   players: PublicPlayer[];
+  game: PublicGameState | null;
+}
+
+export type ThemeReaction = 'like' | 'dislike';
+export type GamePhase = 'THEME_SELECTION' | 'PLAYING';
+
+export interface GameTheme {
+  id: string;
+  title: string;
+  type: string;
+  category?: string;
+}
+
+export interface PublicGameState {
+  round: number;
+  totalRounds: number;
+  phase: GamePhase;
+  currentTheme: GameTheme;
+  likes: number;
+  dislikes: number;
+  reactedPlayers: number;
+  playersCount: number;
+}
+
+export interface ThemeReactionState {
+  themeId?: string;
+  reaction: ThemeReaction | null;
 }
 
 export interface PlayerSession {

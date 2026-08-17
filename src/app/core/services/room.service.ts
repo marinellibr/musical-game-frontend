@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { PlayerSession, RoomEntryResponse, RoomState } from '../models/room.models';
+import { PlayerSession, RoomEntryResponse, RoomState, ThemeReaction } from '../models/room.models';
 import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
 import { SocketService } from './socket.service';
@@ -16,6 +16,7 @@ export class RoomService {
   readonly error = signal('');
   readonly requiresRejoin = signal(false);
   readonly wasRemoved = signal(false);
+  readonly myThemeReaction = signal<ThemeReaction | null>(null);
 
   constructor() {
     this.sockets.roomState$.subscribe((state) => {
@@ -60,6 +61,9 @@ export class RoomService {
       this.wasRemoved.set(true);
       this.requiresRejoin.set(false);
       this.error.set('Você foi removido da sala pelo host.');
+    });
+    this.sockets.themeReaction$.subscribe((state) => {
+      if (state) this.myThemeReaction.set(state.reaction);
     });
   }
 
@@ -125,6 +129,20 @@ export class RoomService {
   startGame(): void {
     this.error.set('');
     this.sockets.startGame();
+  }
+
+  reactToTheme(reaction: ThemeReaction | null): void {
+    this.sockets.reactToTheme(reaction);
+  }
+
+  swapTheme(): void {
+    this.error.set('');
+    this.sockets.swapTheme();
+  }
+
+  startRound(): void {
+    this.error.set('');
+    this.sockets.startRound();
   }
 
   private storeResponse(response: RoomEntryResponse): PlayerSession {
