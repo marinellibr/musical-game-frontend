@@ -6,6 +6,7 @@ import { ApiService } from './api.service';
 import { PlayerSessionService } from './player-session.service';
 import { SocketConnectionState, SocketService } from './socket.service';
 import { environment } from '../../../environments/environment';
+import { mockDataUrl } from '../routing/mock-route';
 
 export type DevMockStep = 'LOBBY' | 'THEME_REVEAL' | 'CHOOSING' | 'LISTENING' | 'LISTENING_YOUTUBE' | 'LISTENING_FINISHED' | 'LISTENING_READY_ONE' | 'LISTENING_READY_ALL' | 'VOTING' | 'ROUND_RESULTS' | 'GAME_RESULTS';
 interface DevMockData {
@@ -175,7 +176,7 @@ export class RoomService {
 
   async initializeMock(): Promise<void> {
     if (!this.mockEnabled || this.mockReady()) return;
-    const response = await fetch('/mock.json', { cache: 'no-store' });
+    const response = await fetch(mockDataUrl(), { cache: 'no-store' });
     if (!response.ok) throw new Error('Não foi possível carregar mock.json.');
     this.mockData = await response.json() as DevMockData;
     this.activateMockStep(this.mockStepFromPath(globalThis.location?.pathname || ''));

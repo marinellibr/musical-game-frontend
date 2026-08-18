@@ -12,12 +12,13 @@ import {
   YouTubeMetadata,
   GameFinishedView,
 } from '../models/room.models';
+import { isMockRoute, mockDataUrl } from '../routing/mock-route';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
-  private readonly mockEnabled = Boolean(environment.mockRole || globalThis.location?.pathname.startsWith('/mock/'));
+  private readonly mockEnabled = Boolean(environment.mockRole || isMockRoute());
 
   createRoom(username: string, isPlaying: boolean): Observable<CreateRoomResponse> {
     if (this.mockEnabled) return this.mockData().pipe(map((data) => ({ roomCode: data.roomCode, player: { ...data.host, username, isPlaying }, playerToken: 'local-mock-token' })));
@@ -64,7 +65,7 @@ export class ApiService {
   }
 
   private mockData(): Observable<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; themes?: GameTheme[] }> {
-    return this.http.get<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; themes?: GameTheme[] }>('/mock.json');
+    return this.http.get<{ roomCode: string; settings: RoomState['settings']; host: RoomState['host']; players: RoomState['players']; spotifyTracks: SpotifyTrack[]; youtube: YouTubeMetadata; themes?: GameTheme[] }>(mockDataUrl());
   }
 
   private groupMockCategories(themes: GameTheme[]): GameCategory[] {
